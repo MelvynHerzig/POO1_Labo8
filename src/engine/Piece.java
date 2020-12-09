@@ -22,33 +22,10 @@ abstract class Piece
 
     }
 
-    PlayerColor getColor()
-    {
-        return color;
-    }
-
-    PieceType getPieceType()
-    {
-        return type;
-    }
-
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
 
-        return board[toY][toX] == null || board[toY][toX].color != this.color;
-    }
-
-    void move(Piece[][] board, ChessView view, int toX, int toY)
-    {
-        board[toY][toX] = this;
-        board[this.y][this.x] = null;
-
-        view.removePiece(this.x, this.y);
-
-        this.x = toX;
-        this.y = toY;
-
-        view.putPiece(this.type, this.color, this.x, this.y);
+        return (board[toY][toX] == null || board[toY][toX].color != this.color) ? Movement.STANDARD : Movement.IMPOSSIBLE;
     }
 
 }

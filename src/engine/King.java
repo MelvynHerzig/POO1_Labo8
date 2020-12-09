@@ -6,59 +6,35 @@ import chess.PlayerColor;
 
 class King extends PieceSpecialFirstMove implements LinearMovement
 {
-    private boolean castling;
+    Rook rookCastled;
 
     King(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.KING, x, y);
-        castling = false;
     }
 
     @Override
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
-
-        if (!hasMoved && (castling = checkForCastling(board, toX)))
-        {
-            return true;
-        }
 
         int diffX = Math.abs(this.x - toX);
         int diffY = Math.abs(this.y - toY);
 
-        return super.canMove(board, toX, toY) && diffX < 2 && diffY < 2;
-    }
+        Piece pDest = this.x < toX ? board[this.y][7] : board[this.y][0];
 
-    void move(Piece[][] board, ChessView view, int toX, int toY)
-    {
-        if (castling)
+        if (diffX == 2 && !hasMoved && toY == this.y && checkForCastling(board, pDest))
         {
-            Rook r = (Rook) board[toY][toX];
-            if (r.x < this.x)
-            {
-                doCastling(board, view, r, -1);
-            }
-            else
-            {
-                doCastling(board, view, r, 1);
-            }
+            rookCastled = (Rook) pDest;
+            return Movement.CASTLING;
         }
-        else
-        {
-            super.move(board, view, toX, toY);
-        }
+
+        return (super.canMove(board, toX, toY) == Movement.STANDARD && diffX < 2 && diffY < 2) ? Movement.STANDARD : Movement.IMPOSSIBLE;
     }
 
-    private boolean checkForCastling(Piece[][] board, int toX)
+    private boolean checkForCastling(Piece[][] board, Piece pDest)
     {
-        Piece pDest = board[this.y][toX];
-        return super.checkSpecialFirstMove() && pDest != null && pDest.color == this.color && pDest.type == PieceType.ROOK && !((Rook) pDest).hasMoved() && checkLinearMovement(board, this.x, this.y, toX, this.y);
-    }
 
-    private void doCastling(Piece[][] board, ChessView view, Rook r, int factor)
-    {
-        super.move(board, view, this.x + (2 * factor), this.y);
-        r.move(board, view, this.x - factor, r.y);
+        return super.checkSpecialFirstMove() && pDest != null && pDest.color == this.color && pDest.type == PieceType.ROOK && !((Rook) pDest).hasMoved() && checkLinearMovement(board, this.x, this.y, pDest.x, pDest.y);
     }
 
 }

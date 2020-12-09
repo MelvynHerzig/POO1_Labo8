@@ -1,6 +1,5 @@
 package engine;
 
-import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
@@ -13,10 +12,11 @@ class Rook extends PieceSpecialFirstMove implements LinearMovement
     }
 
     @Override
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
-        return super.canMove(board, toX, toY)
-                && checkLinearMovement(board, this.x, this.y, toX, toY);
+        return (super.canMove(board, toX, toY) == Movement.STANDARD
+                && checkLinearMovement(board, this.x, this.y, toX, toY)) ?
+                Movement.STANDARD : Movement.IMPOSSIBLE;
     }
 
 }

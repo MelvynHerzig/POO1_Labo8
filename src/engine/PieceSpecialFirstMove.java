@@ -25,9 +25,4 @@ abstract class PieceSpecialFirstMove extends Piece
         return !hasMoved;
     }
 
-    void move(Piece[][] board, ChessView view, int toX, int toY)
-    {
-        hasMoved = true;
-        super.move(board, view, toX, toY);
-    }
 }

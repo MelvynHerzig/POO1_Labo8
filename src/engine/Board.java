@@ -22,16 +22,28 @@ public class Board implements chess.ChessController
     {
         Piece p = board[fromY][fromX];
 
-        if (p != null && p.canMove(board, toX, toY))
+        if (p == null)
         {
-            // on doit encore check si ça met en echec
-            p.move(board, view, toX, toY);
-
-            return true;
+            return false;
         }
 
+        switch (p.canMove(board, toX, toY))
+        {
+            case IMPOSSIBLE:
+                return false;
+            case STANDARD:
+                movePiece(p, toX, toY);
+                break;
+            case PASSANT:
+                passant((Pawn)p, toX, toY);
+                break;
+            case CASTLING:
+                castling((King)p, toX, toY);
+                break;
+        }
 
-        return false;
+        return true;
+
     }
 
     @Override
@@ -90,4 +102,43 @@ public class Board implements chess.ChessController
             }
         }
     }
+
+    private void movePiece(Piece p, int toX, int toY)
+    {
+        if(p instanceof PieceSpecialFirstMove)
+        {
+            ((PieceSpecialFirstMove)p).hasMoved = true;
+        }
+
+        board[toY][toX] = p;
+        board[p.y][p.x] = null;
+
+        view.removePiece(p.x, p.y);
+
+        p.x = toX;
+        p.y = toY;
+
+        view.putPiece(p.type, p.color, p.x, p.y);
+    }
+
+    private void castling(King k, int toX, int toY)
+    {
+        Rook r = k.rookCastled;
+
+        int rookX = k.x < r.x ? toX-1 : toX+1;
+
+        movePiece(r, rookX, toY);
+        movePiece(k, toX, toY);
+    }
+
+    private void passant(Pawn p, int toX, int toY)
+    {
+        Pawn pToDel = p.pawnPassant;
+
+        board[pToDel.y][pToDel.x] = null;
+        view.removePiece(pToDel.x, pToDel.y);
+
+        movePiece(p, toX, toY);
+    }
+
 }

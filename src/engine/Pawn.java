@@ -6,71 +6,63 @@ import chess.PlayerColor;
 
 class Pawn extends PieceSpecialFirstMove
 {
-    private boolean moved2Cases;
     private int directionFactor;
+
+    Pawn pawnPassant;
+
+    boolean moved2Cases;
 
     Pawn(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.PAWN, x, y);
         directionFactor = this.color == PlayerColor.BLACK ? -1 : 1;
+        moved2Cases = false;
     }
-
-    void setMoved2Cases(boolean hasMoved2Cases)
-    {
-        this.moved2Cases = hasMoved2Cases;
-    }
-
-    boolean hasMoved2Cases()
-    {
-        return moved2Cases;
-    }
-
 
     @Override
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
-        int diffX = Math.abs(toX - this.x);
+        int diffX = Math.abs(this.x - toX);
         int diffY = toY - this.y;
 
         Piece pDest = board[toY][toX];
 
-        if (diffX == 1 && diffY * directionFactor == 1 && pDest != null && pDest.color != this.color)
+        if (diffX == 1 && diffY * directionFactor == 1)
         {
-            return true;
+            if (pDest == null)
+            {
+                return enPassant(board, toX);
+            }
+
+            return super.canMove(board, toX, toY);
         }
-        else if (diffX == 0 && pDest == null && (this.y + 2 * directionFactor == toY && super.checkSpecialFirstMove() || this.y + directionFactor == toY))
+
+        diffY = Math.abs(diffY);
+
+        if (board[toY][toX] != null || diffY > 2 || diffX != 0)
         {
-            return true;
+            return Movement.IMPOSSIBLE;
         }
-        return false;
+
+        if(hasMoved && diffY == 2)
+        {
+            return Movement.IMPOSSIBLE;
+        }
+
+        moved2Cases = diffY == 2;
+
+        return Movement.STANDARD;
     }
 
-    void move(Piece[][] board, ChessView view, int toX, int toY)
+    Movement enPassant(Piece[][] board, int toX)
     {
-        if(board[this.y - directionFactor][this.x] == this) board[this.y - directionFactor][this.x] = null;
-        int diffX = Math.abs(toX - this.x);
-        Piece pDest = board[toY][toX];
+        Piece pDest = board[this.y][toX];
 
-
-        // Prise en passant
-        if (diffX == 1 && pDest.type == PieceType.PAWN)
+        if (pDest.type == PieceType.PAWN && pDest.color != this.color && ((Pawn) pDest).moved2Cases)
         {
-            ((Pawn)pDest).kill(board, view);
+            pawnPassant = (Pawn) pDest;
+            return Movement.PASSANT;
         }
-        else
-        {
-            board[this.y + directionFactor][this.x] = this;
-        }
-
-
-        super.move(board, view, toX, toY);
-    }
-
-    void kill(Piece[][] board, ChessView view)
-    {
-        board[this.y][this.x] = null;
-        board[this.y - directionFactor][this.x] = board[this.y - directionFactor][this.x] == this ? null : board[this.y - directionFactor][this.x];
-
-        view.removePiece(this.x, this.y);
+        return Movement.IMPOSSIBLE;
     }
 }
