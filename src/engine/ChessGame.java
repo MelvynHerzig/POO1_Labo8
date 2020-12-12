@@ -20,15 +20,15 @@ public class ChessGame implements chess.ChessController
     @Override
     public boolean move(int fromX, int fromY, int toX, int toY)
     {
-        Piece p = board.getPiece(fromX, fromY);
         Board tmp = board.clone();
+        Piece p = tmp.getPiece(fromX, fromY);
 
         if (p == null ||(fromX == toX && fromY == toY)) //  p.color != turn ||
         {
             return false;
         }
 
-        for (Movement m : p.canMove(board, toX, toY))
+        for (Movement m : p.canMove(tmp, toX, toY))
         {
             applyMovement(tmp, m);
             if (checkMate(tmp, m))

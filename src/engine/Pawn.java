@@ -42,7 +42,7 @@ class Pawn extends PieceSpecialFirstMove
             return moves;
         }
 
-        if(diffX == 0 && diffY * directionFactor > 0 && board.getPiece(toX, toY) == null)
+        if(diffX == 0 && diffY * directionFactor > 0 && diffY * directionFactor < 3 && board.getPiece(toX, toY) == null)
         {
             if(hasMoved && Math.abs(diffY) == 2)
             {
