@@ -21,7 +21,7 @@ class Knight extends Piece
         int x = Math.abs(this.getX() - toX);
         int y = Math.abs(this.getY() - toY);
 
-        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX, toY)) && x * y == 2)
+        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX, toY)) && x * y == 2)
         {
             moves.add(new Movement(this, pDest, toX, toY));
         }

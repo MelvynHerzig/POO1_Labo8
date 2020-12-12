@@ -1,6 +1,5 @@
 package engine;
 
-import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
@@ -35,7 +34,7 @@ class Pawn extends PieceSpecialFirstMove
             {
                 return enPassant(board, toX, toY);
             }
-            else if(!board.alliesCase(this.color, toX, toY))
+            else if(!board.alliesBox(this.color, toX, toY))
             {
                 moves.add(new Movement(this, pDest, toX, toY));
             }

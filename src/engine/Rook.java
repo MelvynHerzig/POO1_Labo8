@@ -19,7 +19,7 @@ class Rook extends PieceSpecialFirstMove implements LinearMovement
         ArrayList<Movement> moves = new ArrayList<>();
         Piece pDest = board.getPiece(toX, toY);
 
-        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX, toY)) && checkLinearMovement(board, getX(), getY(), toX, toY))
+        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX, toY)) && checkLinearMovement(board, getX(), getY(), toX, toY))
         {
             moves.add(new Movement(this, pDest, toX, toY));
         }

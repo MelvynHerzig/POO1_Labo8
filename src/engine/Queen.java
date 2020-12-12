@@ -18,7 +18,7 @@ class Queen extends Piece implements AngularMovement, LinearMovement
         ArrayList<Movement> moves = new ArrayList<>();
         Piece pDest = board.getPiece(toX, toY);
 
-        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX,toY)) &&
+        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX,toY)) &&
                 (
                         checkLinearMovement(board, getX(), getY(), toX, toY)
                      || checkAngularMovement(board, getX(), getY(), toX, toY))

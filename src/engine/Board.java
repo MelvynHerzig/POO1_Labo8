@@ -4,7 +4,7 @@ import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Board
+class Board implements Cloneable
 {
     private Piece[][] board;
     private King black;
@@ -34,14 +34,10 @@ class Board
         p.setY(toY);
     }
 
-    ArrayList<Piece> getBlackPieces()
+    ArrayList<Piece> getEnnemyPieces(PlayerColor currentPlayer)
     {
-        return blackPieces;
-    }
 
-    ArrayList<Piece> getWhitePieces()
-    {
-        return whitePieces;
+        return currentPlayer == PlayerColor.BLACK ? blackPieces : whitePieces;
     }
 
     King getKing(PlayerColor color)
@@ -63,6 +59,37 @@ class Board
         createFrontLine(PlayerColor.WHITE, 1);
     }
 
+    int getSize()
+    {
+        return size;
+    }
+
+    public Board clone()
+    {
+        Board b = null;
+        try
+        {
+            b = (Board) super.clone();
+            for (int y = 0; y < size; ++y)
+            {
+                for (int x = 0; x < size; ++x)
+                {
+                    Piece p = getPiece(x, y);
+                    Piece clone = null;
+                    if (p != null)
+                    {
+                        clone = p.clone();
+                    }
+                    b.board[y][x] = clone;
+                }
+            }
+        }
+        catch (CloneNotSupportedException e)
+        {
+        }
+        return b;
+    }
+
     private void createFrontLine(PlayerColor color, int noLine)
     {
         for (int i = 0; i < size; i++)
@@ -82,13 +109,13 @@ class Board
         board[noLine][6] = new Knight(color, 6, noLine);
         board[noLine][7] = new Rook(color, 7, noLine);
 
-        if(color == PlayerColor.BLACK)
+        if (color == PlayerColor.BLACK)
         {
-            black = (King)getPiece(4, noLine);
+            black = (King) getPiece(4, noLine);
         }
         else
         {
-            white = (King)getPiece(4, noLine);
+            white = (King) getPiece(4, noLine);
         }
     }
 
@@ -97,13 +124,13 @@ class Board
         board[y][x] = null;
     }
 
-    boolean freeCase(int x, int y)
+    boolean freeBox(int x, int y)
     {
         return getPiece(x, y) == null;
     }
 
-    boolean alliesCase(PlayerColor color, int x, int y)
+    boolean alliesBox(PlayerColor color, int x, int y)
     {
-        return getPiece(x,y).color == color;
+        return getPiece(x, y).color == color;
     }
 }

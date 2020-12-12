@@ -4,7 +4,7 @@ import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
-abstract class PieceSpecialFirstMove extends Piece
+abstract class PieceSpecialFirstMove extends Piece implements Cloneable
 {
     protected boolean hasMoved;
 
@@ -24,5 +24,7 @@ abstract class PieceSpecialFirstMove extends Piece
     {
         return !hasMoved;
     }
+
+
 
 }

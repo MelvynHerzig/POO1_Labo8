@@ -6,7 +6,7 @@ import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-abstract class Piece
+abstract class Piece implements Cloneable
 {
     protected PlayerColor color;
     protected PieceType type;
@@ -45,4 +45,26 @@ abstract class Piece
 
     abstract ArrayList<Movement> canMove(Board board, int toX, int toY);
 
-  }
+    public Piece clone()
+    {
+        Piece p = null;
+        try
+        {
+            p = (Piece) super.clone();
+            System.out.println(this);
+        }
+        catch (CloneNotSupportedException e){}
+
+        return p;
+    }
+
+    public boolean equal(Object o)
+    {
+        if(o == null || o.getClass() != getClass())
+        {
+            return false;
+        }
+        Piece p = (Piece)o;
+        return p == this || p.x == x && p.y == y && p.type == type && p.color == color;
+    }
+}

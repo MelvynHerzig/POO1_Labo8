@@ -31,7 +31,7 @@ class King extends PieceSpecialFirstMove implements LinearMovement
             moves.add(new Movement(this, null, toX, toY));
             moves.add(new Movement(pDest, null, toX - factor, toY));
         }
-        else if ((board.freeCase(toX, toY) || !board.alliesCase(this.color,
+        else if ((board.freeBox(toX, toY) || !board.alliesBox(this.color,
                 toX, toY)) && diffX < 2 && diffY < 2)
         {
             pDest = board.getPiece(toX, toY);

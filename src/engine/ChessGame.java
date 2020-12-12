@@ -7,7 +7,7 @@ public class ChessGame implements chess.ChessController
     private Board board;
     private ChessView view;
 
-    private final int size = 8;
+    private PlayerColor turn;
 
     @Override
     public void start(ChessView view)
@@ -21,49 +21,36 @@ public class ChessGame implements chess.ChessController
     public boolean move(int fromX, int fromY, int toX, int toY)
     {
         Piece p = board.getPiece(fromX, fromY);
-        boolean validMove =false;
+        Board tmp = board.clone();
 
-        if (p == null)
+        if (p == null ||(fromX == toX && fromY == toY)) //  p.color != turn ||
         {
             return false;
         }
 
         for (Movement m : p.canMove(board, toX, toY))
         {
-            Piece toMove = m.getPieceToMove();
-            Piece toKill = m.getPieceToKill();
-            int realToX = m.getToX();
-            int realToY = m.getToY();
-
-            if (toKill != null)
+            applyMovement(tmp, m);
+            if (checkMate(tmp, m))
             {
-                board.killPiece(toKill.getX(), toKill.getY());
-                view.removePiece(toKill.getX(), toKill.getY());
-            }
-
-            view.removePiece(toMove.getX(), toMove.getY());
-
-            board.movePiece(toMove.getX(), toMove.getY(), realToX, realToY);
-            view.putPiece(toMove.type, toMove.color, realToX, realToY);
-
-            validMove = true;
-            if(p instanceof PieceSpecialFirstMove)
-            {
-                ((PieceSpecialFirstMove)p).hasMoved = true;
-                if(p instanceof Pawn)
-                {
-                    ((Pawn)p).moved2Cases = Math.abs(p.getY() - realToY) == 2;
-                }
+                return false;
             }
         }
 
-        return validMove;
+        board = tmp;
+        updateView();
+
+        turn = turn == PlayerColor.BLACK ? PlayerColor.WHITE :
+                PlayerColor.BLACK;
+
+        return true;
 
     }
 
     @Override
     public void newGame()
     {
+        turn = PlayerColor.WHITE;
         resetBoard();
     }
 
@@ -75,9 +62,9 @@ public class ChessGame implements chess.ChessController
 
     private void showBoard()
     {
-        for (int y = 0; y < size; y++)
+        for (int y = 0; y < board.getSize(); y++)
         {
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < board.getSize(); x++)
             {
                 Piece p = board.getPiece(x, y);
 
@@ -88,7 +75,60 @@ public class ChessGame implements chess.ChessController
         }
     }
 
+    private boolean applyMovement(Board b, Movement m)
+    {
+        Piece toMove = m.getPieceToMove();
+        Piece toKill = m.getPieceToKill();
+        int realToX = m.getToX();
+        int realToY = m.getToY();
 
+        // check sur un autre board si move ok
+
+
+        if (toKill != null)
+        {
+            b.killPiece(toKill.getX(), toKill.getY());
+        }
+
+        if (toMove instanceof PieceSpecialFirstMove)
+        {
+            ((PieceSpecialFirstMove) toMove).hasMoved = true;
+            if (toMove instanceof Pawn)
+            {
+                ((Pawn) toMove).moved2Cases =
+                        Math.abs(toMove.getY() - realToY) == 2;
+            }
+        }
+
+        b.movePiece(toMove.getX(), toMove.getY(), realToX, realToY);
+
+        return true;
+    }
+
+    private boolean checkMate(Board b, Movement m)
+    {
+
+        return false;
+    }
+
+    private void updateView()
+    {
+        for (int y = 0; y < board.getSize(); ++y)
+        {
+            for (int x = 0; x < board.getSize(); ++x)
+            {
+                Piece p = board.getPiece(x,y);
+                if(p == null)
+                {
+                    view.removePiece(x, y);
+                }
+                else
+                {
+                    view.putPiece(p.type, p.color, x,y);
+                }
+            }
+        }
+    }
 
   /*  private void movePiece(Piece p, int toX, int toY)
     {
