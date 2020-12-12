@@ -3,6 +3,8 @@ package engine;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class Queen extends Piece implements AngularMovement, LinearMovement
 {
     Queen(PlayerColor aColor, int x, int y)
@@ -11,12 +13,20 @@ class Queen extends Piece implements AngularMovement, LinearMovement
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
-        return (super.canMove(board, toX, toY) == Movement.STANDARD &&
+        ArrayList<Movement> moves = new ArrayList<>();
+        Piece pDest = board.getPiece(toX, toY);
+
+        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX,toY)) &&
                 (
-                 checkAngularMovement(board, this.x, this.y, toX, toY) ||
-                 checkLinearMovement(board, this.x, this.y, toX, toY)
-                )) ? Movement.STANDARD : Movement.IMPOSSIBLE;
+                        checkLinearMovement(board, getX(), getY(), toX, toY)
+                     || checkAngularMovement(board, getX(), getY(), toX, toY))
+                )
+        {
+            moves.add(new Movement(this, pDest, toX, toY));
+        }
+
+        return moves;
     }
 }

@@ -3,6 +3,8 @@ package engine;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class Rook extends PieceSpecialFirstMove implements LinearMovement
 {
 
@@ -12,11 +14,17 @@ class Rook extends PieceSpecialFirstMove implements LinearMovement
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
-        return (super.canMove(board, toX, toY) == Movement.STANDARD
-                && checkLinearMovement(board, this.x, this.y, toX, toY)) ?
-                Movement.STANDARD : Movement.IMPOSSIBLE;
+        ArrayList<Movement> moves = new ArrayList<>();
+        Piece pDest = board.getPiece(toX, toY);
+
+        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX, toY)) && checkLinearMovement(board, getX(), getY(), toX, toY))
+        {
+            moves.add(new Movement(this, pDest, toX, toY));
+        }
+
+        return moves;
     }
 
 }

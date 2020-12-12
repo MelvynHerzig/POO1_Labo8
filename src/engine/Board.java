@@ -1,58 +1,55 @@
 package engine;
 
-import chess.*;
+import chess.PlayerColor;
 
-public class Board implements chess.ChessController
+import java.util.ArrayList;
+
+class Board
 {
     private Piece[][] board;
-    private ChessView view;
+    private King black;
+    private King white;
+
+    private ArrayList<Piece> blackPieces;
+    private ArrayList<Piece> whitePieces;
 
     private final int size = 8;
 
-    @Override
-    public void start(ChessView view)
+    Board()
     {
-        this.view = view;
-        this.view.startView();
-
+        reset();
     }
 
-    @Override
-    public boolean move(int fromX, int fromY, int toX, int toY)
+    Piece getPiece(int x, int y)
     {
-        Piece p = board[fromY][fromX];
-
-        if (p == null)
-        {
-            return false;
-        }
-
-        switch (p.canMove(board, toX, toY))
-        {
-            case IMPOSSIBLE:
-                return false;
-            case STANDARD:
-                movePiece(p, toX, toY);
-                break;
-            case PASSANT:
-                passant((Pawn)p, toX, toY);
-                break;
-            case CASTLING:
-                castling((King)p, toX, toY);
-                break;
-        }
-
-        return true;
-
+        return board[y][x];
     }
 
-    @Override
-    public void newGame()
+    void movePiece(int fromX, int fromY, int toX, int toY)
     {
-        resetBoard();
+        Piece p = getPiece(fromX, fromY);
+        board[toY][toX] = p;
+        board[fromY][fromX] = null;
+        p.setX(toX);
+        p.setY(toY);
     }
 
-    public void resetBoard()
+    ArrayList<Piece> getBlackPieces()
+    {
+        return blackPieces;
+    }
+
+    ArrayList<Piece> getWhitePieces()
+    {
+        return whitePieces;
+    }
+
+    King getKing(PlayerColor color)
+    {
+        return color == PlayerColor.BLACK ? black : white;
+    }
+
+    void reset()
     {
         board = new Piece[size][size];
 
@@ -64,8 +61,6 @@ public class Board implements chess.ChessController
         // White pieces on bottom
         createBackLine(PlayerColor.WHITE, 0);
         createFrontLine(PlayerColor.WHITE, 1);
-
-        showBoard();
     }
 
     private void createFrontLine(PlayerColor color, int noLine)
@@ -86,59 +81,29 @@ public class Board implements chess.ChessController
         board[noLine][5] = new Bishop(color, 5, noLine);
         board[noLine][6] = new Knight(color, 6, noLine);
         board[noLine][7] = new Rook(color, 7, noLine);
-    }
 
-    private void showBoard()
-    {
-        for (int y = 0; y < size; y++)
+        if(color == PlayerColor.BLACK)
         {
-            for (int x = 0; x < size; x++)
-            {
-                Piece p = board[y][x];
-
-                if (p == null) continue;
-
-                view.putPiece(p.type, p.color, x, y);
-            }
+            black = (King)getPiece(4, noLine);
+        }
+        else
+        {
+            white = (King)getPiece(4, noLine);
         }
     }
 
-    private void movePiece(Piece p, int toX, int toY)
+    void killPiece(int x, int y)
     {
-        if(p instanceof PieceSpecialFirstMove)
-        {
-            ((PieceSpecialFirstMove)p).hasMoved = true;
-        }
-
-        board[toY][toX] = p;
-        board[p.y][p.x] = null;
-
-        view.removePiece(p.x, p.y);
-
-        p.x = toX;
-        p.y = toY;
-
-        view.putPiece(p.type, p.color, p.x, p.y);
+        board[y][x] = null;
     }
 
-    private void castling(King k, int toX, int toY)
+    boolean freeCase(int x, int y)
     {
-        Rook r = k.rookCastled;
-
-        int rookX = k.x < r.x ? toX-1 : toX+1;
-
-        movePiece(r, rookX, toY);
-        movePiece(k, toX, toY);
+        return getPiece(x, y) == null;
     }
 
-    private void passant(Pawn p, int toX, int toY)
+    boolean alliesCase(PlayerColor color, int x, int y)
     {
-        Pawn pToDel = p.pawnPassant;
-
-        board[pToDel.y][pToDel.x] = null;
-        view.removePiece(pToDel.x, pToDel.y);
-
-        movePiece(p, toX, toY);
+        return getPiece(x,y).color == color;
     }
-
 }

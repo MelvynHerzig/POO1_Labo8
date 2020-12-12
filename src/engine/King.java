@@ -1,40 +1,54 @@
 package engine;
 
-import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class King extends PieceSpecialFirstMove implements LinearMovement
 {
-    Rook rookCastled;
-
     King(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.KING, x, y);
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
+        ArrayList<Movement> moves = new ArrayList<>();
 
-        int diffX = Math.abs(this.x - toX);
-        int diffY = Math.abs(this.y - toY);
+        int diffX = Math.abs(getX() - toX);
+        int diffY = Math.abs(getY() - toY);
 
-        Piece pDest = this.x < toX ? board[this.y][7] : board[this.y][0];
+        Piece pDest = getX() < toX ? board.getPiece(7, getY()) :
+                board.getPiece(0, getY());
 
-        if (diffX == 2 && !hasMoved && toY == this.y && checkForCastling(board, pDest))
+        if (diffX == 2 && !hasMoved && toY == getY() && checkForCastling(board, pDest))
         {
-            rookCastled = (Rook) pDest;
-            return Movement.CASTLING;
+            int factor = toX < getX() ? -1 : 1;
+
+            moves.add(new Movement(this, null, getX() + factor, toY));
+            moves.add(new Movement(this, null, toX, toY));
+            moves.add(new Movement(pDest, null, toX - factor, toY));
+        }
+        else if ((board.freeCase(toX, toY) || !board.alliesCase(this.color,
+                toX, toY)) && diffX < 2 && diffY < 2)
+        {
+            pDest = board.getPiece(toX, toY);
+            moves.add(new Movement(this, pDest, toX, toY));
         }
 
-        return (super.canMove(board, toX, toY) == Movement.STANDARD && diffX < 2 && diffY < 2) ? Movement.STANDARD : Movement.IMPOSSIBLE;
+        return moves;
     }
 
-    private boolean checkForCastling(Piece[][] board, Piece pDest)
+    private boolean checkForCastling(Board board, Piece pDest)
     {
 
-        return super.checkSpecialFirstMove() && pDest != null && pDest.color == this.color && pDest.type == PieceType.ROOK && !((Rook) pDest).hasMoved() && checkLinearMovement(board, this.x, this.y, pDest.x, pDest.y);
+        return super.checkSpecialFirstMove()
+                && pDest != null && pDest.color == this.color
+                && pDest.type == PieceType.ROOK
+                && !((Rook) pDest).hasMoved()
+                && checkLinearMovement(board, getX(), getY(), pDest.getX(), pDest.getY());
     }
 
 }

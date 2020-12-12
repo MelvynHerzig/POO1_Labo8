@@ -3,6 +3,8 @@ package engine;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class Bishop extends Piece implements AngularMovement
 {
     Bishop(PlayerColor aColor, int x, int y)
@@ -11,9 +13,16 @@ class Bishop extends Piece implements AngularMovement
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
-        return (super.canMove(board, toX, toY) == Movement.STANDARD &&
-                checkAngularMovement(board, this.x, this.y, toX, toY)) ? Movement.STANDARD : Movement.IMPOSSIBLE;
+        ArrayList<Movement> moves = new ArrayList<>();
+        Piece pDest = board.getPiece(toX, toY);
+
+        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX, toY)) && checkAngularMovement(board, getX(), getY(), toX, toY))
+        {
+            moves.add(new Movement(this, pDest, toX, toY));
+        }
+
+        return moves;
     }
 }

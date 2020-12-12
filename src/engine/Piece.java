@@ -4,13 +4,15 @@ import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 abstract class Piece
 {
     protected PlayerColor color;
     protected PieceType type;
 
-    protected int x;
-    protected int y;
+    private int x;
+    private int y;
 
     Piece(PlayerColor aColor, PieceType aType, int x, int y)
     {
@@ -19,13 +21,28 @@ abstract class Piece
 
         this.x = x;
         this.y = y;
-
     }
 
-    Movement canMove(Piece[][] board, int toX, int toY)
+    int getX()
     {
-
-        return (board[toY][toX] == null || board[toY][toX].color != this.color) ? Movement.STANDARD : Movement.IMPOSSIBLE;
+        return x;
     }
 
-}
+    int getY()
+    {
+        return y;
+    }
+
+    void setX(int x)
+    {
+        this.x = x;
+    }
+
+    void setY(int y)
+    {
+        this.y = y;
+    }
+
+    abstract ArrayList<Movement> canMove(Board board, int toX, int toY);
+
+  }

@@ -3,6 +3,8 @@ package engine;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class Knight extends Piece
 {
     Knight(PlayerColor aColor, int x, int y)
@@ -11,12 +13,20 @@ class Knight extends Piece
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
-        int x = Math.abs(this.x - toX);
-        int y = Math.abs(this.y - toY);
+        ArrayList<Movement> moves = new ArrayList<>();
+        Piece pDest = board.getPiece(toX, toY);
 
-        return (super.canMove(board, toX, toY) == Movement.STANDARD && x * y == 2) ? Movement.STANDARD : Movement.IMPOSSIBLE;
+        int x = Math.abs(this.getX() - toX);
+        int y = Math.abs(this.getY() - toY);
+
+        if((board.freeCase(toX, toY) || !board.alliesCase(this.color, toX, toY)) && x * y == 2)
+        {
+            moves.add(new Movement(this, pDest, toX, toY));
+        }
+
+        return moves;
 
     }
 }

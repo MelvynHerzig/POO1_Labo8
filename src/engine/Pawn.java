@@ -4,11 +4,11 @@ import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
+import java.util.ArrayList;
+
 class Pawn extends PieceSpecialFirstMove
 {
     private int directionFactor;
-
-    Pawn pawnPassant;
 
     boolean moved2Cases;
 
@@ -20,49 +20,52 @@ class Pawn extends PieceSpecialFirstMove
     }
 
     @Override
-    Movement canMove(Piece[][] board, int toX, int toY)
+    ArrayList<Movement> canMove(Board board, int toX, int toY)
     {
-        int diffX = Math.abs(this.x - toX);
-        int diffY = toY - this.y;
+        ArrayList<Movement> moves = new ArrayList<>();
 
-        Piece pDest = board[toY][toX];
+        int diffX = Math.abs(getX() - toX);
+        int diffY = toY - getY();
+
+        Piece pDest = board.getPiece(toX, toY);
 
         if (diffX == 1 && diffY * directionFactor == 1)
         {
             if (pDest == null)
             {
-                return enPassant(board, toX);
+                return enPassant(board, toX, toY);
+            }
+            else if(!board.alliesCase(this.color, toX, toY))
+            {
+                moves.add(new Movement(this, pDest, toX, toY));
             }
 
-            return super.canMove(board, toX, toY);
+            return moves;
         }
 
-        diffY = Math.abs(diffY);
-
-        if (board[toY][toX] != null || diffY > 2 || diffX != 0)
+        if(diffX == 0 && diffY * directionFactor > 0 && board.getPiece(toX, toY) == null)
         {
-            return Movement.IMPOSSIBLE;
+            if(hasMoved && Math.abs(diffY) == 2)
+            {
+                return moves;
+            }
+
+            moves.add(new Movement(this, pDest, toX, toY));
         }
 
-        if(hasMoved && diffY == 2)
-        {
-            return Movement.IMPOSSIBLE;
-        }
-
-        moved2Cases = diffY == 2;
-
-        return Movement.STANDARD;
+        return moves;
     }
 
-    Movement enPassant(Piece[][] board, int toX)
+    ArrayList<Movement> enPassant(Board board, int toX, int toY)
     {
-        Piece pDest = board[this.y][toX];
+        ArrayList<Movement> moves = new ArrayList<>();
+        Piece pDest = board.getPiece(toX, getY());
 
         if (pDest.type == PieceType.PAWN && pDest.color != this.color && ((Pawn) pDest).moved2Cases)
         {
-            pawnPassant = (Pawn) pDest;
-            return Movement.PASSANT;
+            moves.add(new Movement(this, pDest, toX, toY));
+            return moves;
         }
-        return Movement.IMPOSSIBLE;
+        return moves;
     }
 }

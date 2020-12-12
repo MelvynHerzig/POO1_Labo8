@@ -2,7 +2,7 @@ package engine;
 
 interface AngularMovement
 {
-    default boolean checkAngularMovement(Piece[][] board, int fromX, int fromY, int toX, int toY)
+    default boolean checkAngularMovement(Board board, int fromX, int fromY, int toX, int toY)
     {
         int diffX = fromX - toX;
         int diffY = fromY - toY;
@@ -17,7 +17,7 @@ interface AngularMovement
 
         for(int i = 1; i < Math.abs(diffX); ++i)
         {
-            Piece p = board[fromY + (i*factorY)][fromX + (i*factorX)];
+            Piece p = board.getPiece(fromX + (i*factorX), fromY + (i*factorY));
 
             if(p != null) return false;
         }

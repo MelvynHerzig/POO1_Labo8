@@ -2,7 +2,7 @@ package engine;
 
 interface LinearMovement
 {
-    default boolean checkLinearMovement(Piece[][] board, int fromX, int fromY, int toX, int toY)
+    default boolean checkLinearMovement(Board board, int fromX, int fromY, int toX, int toY)
     {
         int from;
         int to;
@@ -23,7 +23,7 @@ interface LinearMovement
 
         for (from += 1; from < to; ++from)
         {
-            Piece p = fromX == toX ? board[from][fromX] : board[fromY][from];
+            Piece p = fromX == toX ? board.getPiece(fromX, from) : board.getPiece(from, fromY);
 
             if(p != null) return false;
         }
