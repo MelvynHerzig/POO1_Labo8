@@ -51,20 +51,23 @@ abstract class Piece implements Cloneable
         try
         {
             p = (Piece) super.clone();
-            System.out.println(this);
         }
-        catch (CloneNotSupportedException e){}
+        catch (CloneNotSupportedException e){
+            e.printStackTrace();
+        }
 
         return p;
     }
 
-    public boolean equal(Object o)
+    /**
+     * Vérifie si deux pièces sont égales.
+     * @param p Pièce à comparer.
+     * @return Vrai en cas d'égalité sinon faux.
+     */
+    public boolean equal(Piece p)
     {
-        if(o == null || o.getClass() != getClass())
-        {
-            return false;
-        }
-        Piece p = (Piece)o;
-        return p == this || p.x == x && p.y == y && p.type == type && p.color == color;
+        if(p == null) return false;
+
+        return p.x == x && p.y == y && p.type == type && p.color == color;
     }
 }

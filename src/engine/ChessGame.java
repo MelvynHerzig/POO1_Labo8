@@ -2,14 +2,25 @@ package engine;
 
 import chess.*;
 
+import java.util.ArrayList;
+
+/**
+ * Classe controllant le déroulement d'une partie d'échec
+ *
+ * @author Forestier Quentin, Herzig Melvyn
+ * @version 12.12.2020
+ */
 public class ChessGame implements chess.ChessController
 {
     private Board board;
     private ChessView view;
 
-    private PlayerColor turn;
+    private PlayerColor playerTurn;
 
     @Override
+    /**
+     * Enclanche la vue.
+     */
     public void start(ChessView view)
     {
         this.view = view;
@@ -18,20 +29,31 @@ public class ChessGame implements chess.ChessController
     }
 
     @Override
+    /**
+     * Vérifie si une pièce à la position fromX fromY peut aller en toX toY.
+     * Si le déplacement est légal, return true et met à jour la vue, sinon
+     * retourne false.
+     */
     public boolean move(int fromX, int fromY, int toX, int toY)
     {
+        // Modèle temporaire du board sur lequel tester les déplacements
         Board tmp = board.clone();
         Piece p = tmp.getPiece(fromX, fromY);
 
-        if (p == null ||(fromX == toX && fromY == toY)) //  p.color != turn ||
+        if (p == null || p.color != playerTurn)
         {
             return false;
         }
 
-        for (Movement m : p.canMove(tmp, toX, toY))
+        ArrayList<Movement> movements = p.canMove(tmp, toX, toY);
+        // Si auncun mouvmeent possible, return pour ne pas reprint
+        // un board identique.
+        if(movements.isEmpty()) return false;
+
+        for (Movement movement : movements)
         {
-            applyMovement(tmp, m);
-            if (checkMate(tmp, m))
+            applyMovement(tmp, movement);
+            if (checkMate(tmp, playerTurn))
             {
                 return false;
             }
@@ -40,77 +62,70 @@ public class ChessGame implements chess.ChessController
         board = tmp;
         updateView();
 
-        turn = turn == PlayerColor.BLACK ? PlayerColor.WHITE :
-                PlayerColor.BLACK;
+        // Changement de tour
+        playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE :
+                                                       PlayerColor.BLACK;
 
         return true;
-
     }
 
     @Override
+    /**
+     * Lance une nouvelle partie
+     */
     public void newGame()
     {
-        turn = PlayerColor.WHITE;
-        resetBoard();
+        playerTurn = PlayerColor.WHITE;
+        resetGame();
     }
 
-    public void resetBoard()
+    /**
+     * Réinitialisation de la partie
+     */
+    public void resetGame()
     {
         board.reset();
-        showBoard();
+        updateView();
     }
 
-    private void showBoard()
-    {
-        for (int y = 0; y < board.getSize(); y++)
-        {
-            for (int x = 0; x < board.getSize(); x++)
-            {
-                Piece p = board.getPiece(x, y);
-
-                if (p == null) continue;
-
-                view.putPiece(p.type, p.color, x, y);
-            }
-        }
-    }
-
+    /**
+     * Applique le movement m sur le board b.
+     * @param b Modèle du board sur lequel appliquer le mouvement.
+     * @param m Le movement à appliquer.
+     * @return Retourne vrai le pouvement peut être fait sans mettre en échec
+     *         son propre roi sinon false.
+     */
     private boolean applyMovement(Board b, Movement m)
     {
         Piece toMove = m.getPieceToMove();
         Piece toKill = m.getPieceToKill();
-        int realToX = m.getToX();
-        int realToY = m.getToY();
-
-        // check sur un autre board si move ok
-
 
         if (toKill != null)
         {
             b.killPiece(toKill.getX(), toKill.getY());
         }
 
-        if (toMove instanceof PieceSpecialFirstMove)
-        {
-            ((PieceSpecialFirstMove) toMove).hasMoved = true;
-            if (toMove instanceof Pawn)
-            {
-                ((Pawn) toMove).moved2Cases =
-                        Math.abs(toMove.getY() - realToY) == 2;
-            }
-        }
-
-        b.movePiece(toMove.getX(), toMove.getY(), realToX, realToY);
+        b.movePiece(toMove.getX(), toMove.getY(), m.getToX(), m.getToY());
 
         return true;
     }
 
-    private boolean checkMate(Board b, Movement m)
+    /**
+     * Vérifie si la couleur du joueur playerColor est en échec sur le board b.
+     * @param b Board sur lequel vérifier.
+     * @param playerColor joueur à vérifier la mise en échec.
+     * @return
+     */
+    private boolean checkMate(Board b, PlayerColor playerColor)
     {
-
         return false;
     }
 
+    /**
+     * Met à jour la vue.
+     * Optimisation possible: détecter les changements entre le modèle
+     * actuel et précédent pour mettre à jour les différences uniquement.
+     */
     private void updateView()
     {
         for (int y = 0; y < board.getSize(); ++y)
@@ -129,43 +144,4 @@ public class ChessGame implements chess.ChessController
             }
         }
     }
-
-  /*  private void movePiece(Piece p, int toX, int toY)
-    {
-        if(p instanceof PieceSpecialFirstMove)
-        {
-            ((PieceSpecialFirstMove)p).hasMoved = true;
-        }
-
-        board[toY][toX] = p;
-        board[p.y][p.x] = null;
-
-        view.removePiece(p.x, p.y);
-
-        p.x = toX;
-        p.y = toY;
-
-        view.putPiece(p.type, p.color, p.x, p.y);
-    }
-
-    private void castling(King k, int toX, int toY)
-    {
-        Rook r = k.rookCastled;
-
-        int rookX = k.x < r.x ? toX-1 : toX+1;
-
-        movePiece(r, rookX, toY);
-        movePiece(k, toX, toY);
-    }
-
-    private void passant(Pawn p, int toX, int toY)
-    {
-        Pawn pToDel = p.pawnPassant;
-
-        board[pToDel.y][pToDel.x] = null;
-        view.removePiece(pToDel.x, pToDel.y);
-
-        movePiece(p, toX, toY);
-    }
-*/
 }

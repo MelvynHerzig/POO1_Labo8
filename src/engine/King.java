@@ -27,6 +27,7 @@ class King extends PieceSpecialFirstMove implements LinearMovement
         {
             int factor = toX < getX() ? -1 : 1;
 
+            hasMoved = true;
             moves.add(new Movement(this, null, getX() + factor, toY));
             moves.add(new Movement(this, null, toX, toY));
             moves.add(new Movement(pDest, null, toX - factor, toY));
@@ -34,17 +35,17 @@ class King extends PieceSpecialFirstMove implements LinearMovement
         else if ((board.freeBox(toX, toY) || !board.alliesBox(this.color,
                 toX, toY)) && diffX < 2 && diffY < 2)
         {
+            hasMoved = true;
             pDest = board.getPiece(toX, toY);
             moves.add(new Movement(this, pDest, toX, toY));
         }
-
         return moves;
     }
 
     private boolean checkForCastling(Board board, Piece pDest)
     {
 
-        return super.checkSpecialFirstMove()
+        return  !super.hasMoved()
                 && pDest != null && pDest.color == this.color
                 && pDest.type == PieceType.ROOK
                 && !((Rook) pDest).hasMoved()

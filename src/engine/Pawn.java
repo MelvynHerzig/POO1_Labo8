@@ -49,8 +49,13 @@ class Pawn extends PieceSpecialFirstMove
                 return moves;
             }
 
+            hasMoved = true;
+            moved2Cases = Math.abs(diffY) == 2;
+
             moves.add(new Movement(this, pDest, toX, toY));
         }
+
+
 
         return moves;
     }
