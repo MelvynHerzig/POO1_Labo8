@@ -11,12 +11,12 @@ class Knight extends Piece
     }
 
     @Override
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
         int x = Math.abs(this.x - toX);
         int y = Math.abs(this.y - toY);
 
-        return super.canMove(board, toX, toY) && x * y == 2;
+        return (super.canMove(board, toX, toY) == Movement.STANDARD && x * y == 2) ? Movement.STANDARD : Movement.IMPOSSIBLE;
 
     }
 }

@@ -11,12 +11,9 @@ class Bishop extends Piece implements AngularMovement
     }
 
     @Override
-    boolean canMove(Piece[][] board, int toX, int toY)
+    Movement canMove(Piece[][] board, int toX, int toY)
     {
-
-
-
-        return super.canMove(board, toX, toY) &&
-                checkAngularMovement(board, this.x, this.y, toX, toY);
+        return (super.canMove(board, toX, toY) == Movement.STANDARD &&
+                checkAngularMovement(board, this.x, this.y, toX, toY)) ? Movement.STANDARD : Movement.IMPOSSIBLE;
     }
 }
