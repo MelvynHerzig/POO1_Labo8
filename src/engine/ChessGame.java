@@ -102,12 +102,13 @@ public class ChessGame implements chess.ChessController
         if(Math.abs(pm.getToY() - movedPawn.getY()) == 2)
         {
             if(movedPawn.hasMoved()) return false;
+            movedPawn.setMoved2();
         }
 
         // Vérification en passant
         if(pm.getToX() != movedPawn.getX())
         {
-            if(enPassantPawn != null && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant)
+            if(enPassantPawn != null && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant && enPassantPawn.getMoved2())
             {
                 b.killPiece(enPassantPawn.getX(), enPassantPawn.getY());
             }

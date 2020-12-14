@@ -8,11 +8,13 @@ import java.util.ArrayList;
 class Pawn extends PieceSpecialFirstMove
 {
     private int directionFactor;
+    private boolean moved2;
 
     Pawn(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.PAWN, x, y);
         directionFactor = this.color == PlayerColor.BLACK ? -1 : 1;
+        moved2 = false;
     }
 
     /**
@@ -55,5 +57,15 @@ class Pawn extends PieceSpecialFirstMove
         }
 
         return  movements;
+    }
+
+    boolean getMoved2()
+    {
+        return moved2;
+    }
+
+    void setMoved2()
+    {
+        moved2 = true;
     }
 }
