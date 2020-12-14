@@ -1,5 +1,6 @@
 package engine;
 
+import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 import java.util.ArrayList;

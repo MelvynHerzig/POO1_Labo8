@@ -132,7 +132,7 @@ public class GUIView extends BaseView<ImageIcon> {
     T result = possibilities.length > 0 ? possibilities[0] : null;
     if (possibilities.length > 1) {
       result = (T) JOptionPane.showInputDialog(null,
-          question, title, JOptionPane.QUESTION_MESSAGE, null, possibilities, result);
+              question, title, JOptionPane.QUESTION_MESSAGE, null, possibilities, result);
     }
     return result;
   }

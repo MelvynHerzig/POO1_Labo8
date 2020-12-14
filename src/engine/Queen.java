@@ -1,11 +1,12 @@
 package engine;
 
+import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Queen extends Piece
+class Queen extends Piece implements ChessView.UserChoice
 {
     Queen(PlayerColor aColor, int x, int y)
     {
@@ -94,4 +95,10 @@ class Queen extends Piece
 
         return  movements;
     }
+
+   @Override
+   public String textValue()
+   {
+      return "Queen";
+   }
 }

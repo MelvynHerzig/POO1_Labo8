@@ -107,11 +107,11 @@ class Board implements Cloneable
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
-        //createFrontLine(PlayerColor.BLACK, 6);
+        createFrontLine(PlayerColor.BLACK, 6);
 
 
         // Les blancs en bas
-        //createFrontLine(PlayerColor.WHITE, 1);
+        createFrontLine(PlayerColor.WHITE, 1);
         createBackLine(PlayerColor.WHITE, 0);
     }
 
@@ -234,6 +234,19 @@ class Board implements Cloneable
     Piece getLastMovedPiece()
     {
         return lastMovedPiece;
+    }
+
+    /**
+     * Remplece une pièce à la position X Y par une nouvelle pièce p.
+     * @param x Position x.
+     * @param y Position y
+     * @param p Nouvelle pièce
+     */
+    void setPiece(int x, int y, Piece p)
+    {
+        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position invalide");
+
+        board[y][x] = p;
     }
 
 }

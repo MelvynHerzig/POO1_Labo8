@@ -1,11 +1,12 @@
 package engine;
 
+import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Knight extends Piece
+class Knight extends Piece implements ChessView.UserChoice
 {
     Knight(PlayerColor aColor, int x, int y)
     {
@@ -42,5 +43,11 @@ class Knight extends Piece
 
         return  movements;
 
+    }
+
+    @Override
+    public String textValue()
+    {
+        return "Knight";
     }
 }

@@ -86,10 +86,10 @@ public class ChessGame implements chess.ChessController
 
         if (checkMate(tmp, playerTurn)) return false;
 
-        // Promotion
-        
-
         board = tmp;
+
+        // Promotion
+        checkAndAskPawnPromotion(movement.getPieceToMove());
         updateView();
 
         // Echec - mat pat et tutti quanti
@@ -140,6 +140,24 @@ public class ChessGame implements chess.ChessController
         playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
 
         return true;
+    }
+
+    /**
+     * Verifie si la dernière pièce bougé peut être promue.
+     * @param lastMovedPiece Dernière pièce déplacée.
+     */
+    void checkAndAskPawnPromotion(Piece lastMovedPiece)
+    {
+        if(lastMovedPiece.getClass() != Pawn.class) return;
+
+        int validLine = playerTurn == PlayerColor.WHITE ? board.getSize()-1 : 0;
+
+        if(lastMovedPiece.getY() != validLine) return;
+
+        int x = lastMovedPiece.getX(), y = lastMovedPiece.getY();
+        PlayerColor c = lastMovedPiece.getColor();
+        Piece p = view.askUser("Pawn promoted", "What upgrade do you chose ?", new Queen(c,x,y), new Rook(c,x,y), new Bishop(c,x,y), new Knight(c,x,y));
+        board.setPiece(x,y,p);
     }
 
     @Override

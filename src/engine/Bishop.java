@@ -1,11 +1,12 @@
 package engine;
 
+import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Bishop extends Piece
+class Bishop extends Piece implements ChessView.UserChoice
 {
     Bishop(PlayerColor aColor, int x, int y)
     {
@@ -59,5 +60,11 @@ class Bishop extends Piece
 
         return  movements;
 
+    }
+
+    @Override
+    public String textValue()
+    {
+        return "Bishop";
     }
 }

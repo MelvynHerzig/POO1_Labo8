@@ -1,5 +1,6 @@
 package engine;
 
+import chess.ChessView;
 import chess.PieceType;
 import chess.PlayerColor;
 
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  * Inclus deux fonctions "controller" qui permettent de
  * calculer les movements possibles.
  */
-class Rook extends PieceSpecialFirstMove
+class Rook extends PieceSpecialFirstMove implements ChessView.UserChoice
 {
 
     /**
@@ -71,4 +72,10 @@ class Rook extends PieceSpecialFirstMove
         return  movements;
 
     }
+
+   @Override
+   public String textValue()
+   {
+      return "Rook";
+   }
 }
