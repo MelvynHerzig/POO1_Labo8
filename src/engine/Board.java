@@ -107,12 +107,12 @@ class Board implements Cloneable
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
-        createFrontLine(PlayerColor.BLACK, 6);
+        //createFrontLine(PlayerColor.BLACK, 6);
 
 
         // Les blancs en bas
+        //createFrontLine(PlayerColor.WHITE, 1);
         createBackLine(PlayerColor.WHITE, 0);
-        createFrontLine(PlayerColor.WHITE, 1);
     }
 
     /**
@@ -146,9 +146,7 @@ class Board implements Cloneable
         board[noLine][1] = new Knight(color, 1, noLine);
         board[noLine][2] = new Bishop(color, 2, noLine);
         board[noLine][3] = new Queen(color, 3, noLine);
-
-        King king = new King(color, 4, noLine);
-        board[noLine][4] = king;
+        board[noLine][4] = new King(color, 4, noLine);
 
         board[noLine][5] = new Bishop(color, 5, noLine);
         board[noLine][6] = new Knight(color, 6, noLine);

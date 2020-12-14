@@ -17,6 +17,10 @@ public class ChessGame implements chess.ChessController
 
     private PlayerColor playerTurn;
 
+    PlayerColor checkedPlayer;
+    PlayerColor checkedMatedPlayer;
+    PlayerColor patPlayer;
+
     @Override
     /**
      * Enclanche la vue.
@@ -36,6 +40,22 @@ public class ChessGame implements chess.ChessController
      */
     public boolean move(int fromX, int fromY, int toX, int toY)
     {
+        //Vérifications de fin de tour
+        // Echec
+        if(checkedMatedPlayer != null)
+        {
+            view.displayMessage("Check Mate! " + checkedMatedPlayer);
+
+            if(checkedPlayer == null)
+                view.displayMessage("PAT" + checkedMatedPlayer);
+        }
+
+        if(checkedPlayer == playerTurn) //Fonction d'inverse de couleur ?
+        {
+            view.displayMessage("Check! " + checkedPlayer);
+
+        }
+
         // Modèle temporaire du board sur lequel tester les déplacements
         Board tmp = board.clone();
         Piece p = tmp.getPiece(fromX, fromY);
@@ -59,12 +79,62 @@ public class ChessGame implements chess.ChessController
         {
             if(!applyCastling(tmp, (CastlingMovement)movement)) return false;
         }
-        tmp.movePiece(movement.getPieceToMove().getX(), movement.getPieceToMove().getY(), movement.getToX(), movement.getToY());
+        else
+        {
+            tmp.movePiece(movement.getPieceToMove().getX(), movement.getPieceToMove().getY(), movement.getToX(), movement.getToY());
+        }
 
         if (checkMate(tmp, playerTurn)) return false;
 
+        // Promotion
+        
+
         board = tmp;
         updateView();
+
+        // Echec - mat pat et tutti quanti
+        if(checkMate(board, playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK))
+        {
+            checkedPlayer = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
+            view.displayMessage("Check! " + checkedPlayer);
+        }
+        else
+        {
+            checkedPlayer = null;
+            view.displayMessage("");
+        }
+
+        ArrayList<Piece> pieces = board.getEnnemyPieces(playerTurn);
+        checkedMatedPlayer = PlayerColor.BLACK == playerTurn ? PlayerColor.WHITE : PlayerColor.BLACK;
+        for(Piece p1 : pieces)
+        {
+            ArrayList<Movement> movements = p1.possibleMovements(board);
+            for(Movement m : movements)
+            {
+                Board tmp2 = board.clone();
+                if(m.getClass() == PawnMovement.class)
+                {
+                    if(!applyPawnMovement(tmp2, (PawnMovement)m)) return false;
+                }
+                else if(m.getClass() == CastlingMovement.class)
+                {
+                    if(!applyCastling(tmp2, (CastlingMovement)m)) return false;
+                }
+                else
+                {
+                    tmp2.movePiece(m.getPieceToMove().getX(), m.getPieceToMove().getY(), m.getToX(), m.getToY());
+                }
+
+                if (!checkMate(tmp2,PlayerColor.BLACK == playerTurn ? PlayerColor.WHITE : PlayerColor.BLACK))
+                {
+                    checkedMatedPlayer = null;
+                    break;
+                }
+            }
+            if(checkedMatedPlayer == null) break;
+        }
+        if(checkedMatedPlayer != null && checkedPlayer != null) view.displayMessage("Check mate " + checkedMatedPlayer);
+        else if(checkedMatedPlayer != null && checkedPlayer == null) view.displayMessage("PAT " + checkedMatedPlayer);
 
         // Changement de tour
         playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
@@ -118,6 +188,7 @@ public class ChessGame implements chess.ChessController
             }
         }
 
+        b.movePiece(pm.getPieceToMove().getX(), pm.getPieceToMove().getY(),pm.getToX(), pm.getToY());
         movedPawn.setMoved();
 
         return true;
@@ -125,8 +196,21 @@ public class ChessGame implements chess.ChessController
 
     private boolean applyCastling(Board b, CastlingMovement cm)
     {
+        Rook r = cm.getRook();
+        King k = (King)cm.getPieceToMove();
+        int direction = r.getX() > k.getX() ? 1 : -1;
 
+        if(r.hasMoved || k.hasMoved || checkMate(b, playerTurn)) return false;
 
+        // On test les deux cases sur lequels le roi va se déplacer
+        for(int i = 0; i < 2; ++i)
+        {
+            b.movePiece(k.getX(), k.getY(), k.getX()+1*direction, k.getY());
+            if(checkMate(b, playerTurn)) return false;
+        }
+
+        k.setMoved();
+        b.movePiece(r.getX(), r.getY(), k.getX() - direction, k.getY());
         return true;
     }
 
