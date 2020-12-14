@@ -17,6 +17,8 @@ class Board implements Cloneable
 
     private final int size = 8;
 
+    private Piece lastMovedPiece;
+
     /**
      * Constructeur
      */
@@ -32,6 +34,8 @@ class Board implements Cloneable
      */
     Piece getPiece(int x, int y)
     {
+        if(!isValidPosition(x, y)) throw new IllegalArgumentException("Positions inconnues");
+
         return board[y][x];
     }
 
@@ -45,15 +49,20 @@ class Board implements Cloneable
      */
     void movePiece(int fromX, int fromY, int toX, int toY)
     {
+        if(!isValidPosition(fromX,fromY)) throw new IllegalArgumentException("Positions from inconnues");
+        if(!isValidPosition(toX  ,toY  )) throw new IllegalArgumentException("Positions to inconnues");
+
         Piece p = getPiece(fromX, fromY);
 
         //Si la pièce est nulle, sans effet.
         if(p == null) return;
 
         board[toY][toX] = p;
-        board[fromY][fromX] = null;
         p.setX(toX);
         p.setY(toY);
+        lastMovedPiece = p;
+
+        killPiece(fromX, fromY);
     }
 
     /**
@@ -66,8 +75,7 @@ class Board implements Cloneable
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
-                Piece p = getPiece(x,y);
-                if(p.color != currentPlayer) pieces.add(p);
+                if(!isFreeSpot(x,y) && !isAllySpot(currentPlayer,x ,y)) pieces.add(getPiece(x,y));
             }
         return pieces;
     }
@@ -82,8 +90,8 @@ class Board implements Cloneable
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
-                Piece p = getPiece(x,y);
-                if(p.color == currentPlayer && p.type == PieceType.KING)
+                Piece p;
+                if(isAllySpot(currentPlayer,x,y) && (p = getPiece(x,y)).type == PieceType.KING)
                     return (King) p;
             }
 
@@ -167,11 +175,14 @@ class Board implements Cloneable
         try
         {
             b = (Board) super.clone();
+            b.board = new Piece[size][size];
             for (int y = 0; y < size; ++y)
+            {
                 for (int x = 0; x < size; ++x)
+                {
                     b.board[y][x] = board[y][x] == null ? null : board[y][x].clone();
-
-
+                }
+            }
         }
         catch (CloneNotSupportedException e)
         {
@@ -181,15 +192,50 @@ class Board implements Cloneable
         return b;
     }
 
-    // TODO déplacer
-    boolean freeBox(int x, int y)
+    /**
+     * Vérifie si la case en position x et y est occupée.
+     * @param x Position x.
+     * @param y Position y.
+     * @return Vrai si la case est libre sinon faux.
+     */
+    boolean isFreeSpot(int x, int y)
     {
+        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position inconnue");
         return getPiece(x, y) == null;
     }
 
-    // TODO déplacer
-    boolean alliesBox(PlayerColor color, int x, int y)
+    /**
+     * Vérifie si la case en position x et y est occupée par une
+     * pièce de même couleur que color.
+     * @param color Couleur à vérifier l'appartenance.
+     * @param x Position x.
+     * @param y Position y,
+     * @return Retourne vrai si la case est occupée par un allié de color.
+     */
+    boolean isAllySpot(PlayerColor color, int x, int y)
     {
-        return getPiece(x, y).color == color;
+        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position inconnue");
+        return !isFreeSpot(x, y) && getPiece(x, y).color == color;
     }
+
+    /**
+     * Vérifie si la position x y demandée se trouve sur le plateau.
+     * @param x Position x.
+     * @param y Position y.
+     * @return Vrai si la position est sur le plateau sinon faux.
+     */
+    boolean isValidPosition(int x, int y)
+    {
+        return x >= 0 && y >= 0 && x < getSize() && y < getSize();
+    }
+
+    /**
+     * Retourne la dernière pièce déplacée.
+     * @return Retourne la dernière pièce déplacée.
+     */
+    Piece getLastMovedPiece()
+    {
+        return lastMovedPiece;
+    }
+
 }

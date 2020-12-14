@@ -9,67 +9,51 @@ class Pawn extends PieceSpecialFirstMove
 {
     private int directionFactor;
 
-    boolean moved2Cases;
-
     Pawn(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.PAWN, x, y);
         directionFactor = this.color == PlayerColor.BLACK ? -1 : 1;
-        moved2Cases = false;
     }
 
-    @Override
-    ArrayList<Movement> canMove(Board board, int toX, int toY)
+    /**
+     * Calcule et retourne tous les déplacements du fou égocentriquement.
+     * @param board Echiquier sur lequel évaluer les déplacements possibles.
+     * @return Retourne la liste des déplacements possibles.
+     */
+    ArrayList<Movement> possibleMovements(Board board)
     {
-        ArrayList<Movement> moves = new ArrayList<>();
+        ArrayList<Movement> movements = new ArrayList<Movement>();
 
-        int diffX = Math.abs(getX() - toX);
-        int diffY = toY - getY();
-
-        Piece pDest = board.getPiece(toX, toY);
-
-        if (diffX == 1 && diffY * directionFactor == 1)
+        //Avancer de 1 case
+        if(board.isFreeSpot(x, y + 1 * directionFactor))
         {
-            if (pDest == null)
-            {
-                return enPassant(board, toX, toY);
-            }
-            else if(!board.alliesBox(this.color, toX, toY))
-            {
-                moves.add(new Movement(this, pDest, toX, toY));
-            }
+            movements.add(new PawnMovement(this, null, x, y + 1 * directionFactor));
 
-            return moves;
+            //Avancer de 2 cases
+            if(board.isValidPosition(x, y + 2 * directionFactor) && !hasMoved() && board.isFreeSpot(x, y + 2 * directionFactor))
+                movements.add(new PawnMovement(this, null, x, y + 2 * directionFactor));
         }
 
-        if(diffX == 0 && diffY * directionFactor > 0 && diffY * directionFactor < 3 && board.getPiece(toX, toY) == null)
+        //Déplacements diagonal gauche
+        if(board.isValidPosition(x-1, y + 1 * directionFactor) && !board.isAllySpot(color, x-1, y + 1 * directionFactor))
         {
-            if(hasMoved && Math.abs(diffY) == 2)
-            {
-                return moves;
-            }
-
-            hasMoved = true;
-            moved2Cases = Math.abs(diffY) == 2;
-
-            moves.add(new Movement(this, pDest, toX, toY));
+            //Vérification de la prise en passant.
+            if(!board.isFreeSpot(x-1, y) && board.getPiece(x-1, y).type == type)
+                movements.add(new PawnMovement(this, (Pawn)board.getPiece(x-1, y), x-1, y + 1 * directionFactor));
+            else if (!board.isFreeSpot(x-1, y + 1 * directionFactor) && !board.isAllySpot(color,x-1, y + 1 * directionFactor))
+                movements.add(new PawnMovement(this, null, x-1, y + 1 * directionFactor));
         }
 
-
-
-        return moves;
-    }
-
-    ArrayList<Movement> enPassant(Board board, int toX, int toY)
-    {
-        ArrayList<Movement> moves = new ArrayList<>();
-        Piece pDest = board.getPiece(toX, getY());
-
-        if (pDest.type == PieceType.PAWN && pDest.color != this.color && ((Pawn) pDest).moved2Cases)
+        //Déplacements diagonal droite
+        if(board.isValidPosition(x+1, y + 1 * directionFactor) && !board.isAllySpot(color, x+1, y + 1 * directionFactor))
         {
-            moves.add(new Movement(this, pDest, toX, toY));
-            return moves;
+            //Vérification de la prise en passant.
+            if(!board.isFreeSpot(x+1, y) && board.getPiece(x+1, y).type == type)
+                movements.add(new PawnMovement(this, (Pawn)board.getPiece(x+1, y), x+1, y + 1 * directionFactor));
+            else if (!board.isFreeSpot(x+1, y + 1 * directionFactor) && !board.isAllySpot(color,x+1, y + 1 * directionFactor))
+                movements.add(new PawnMovement(this, null, x+1, y + 1 * directionFactor));
         }
-        return moves;
+
+        return  movements;
     }
 }

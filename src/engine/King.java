@@ -5,51 +5,76 @@ import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class King extends PieceSpecialFirstMove implements LinearMovement
+class King extends PieceSpecialFirstMove
 {
     King(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.KING, x, y);
     }
 
-    @Override
-    ArrayList<Movement> canMove(Board board, int toX, int toY)
+    /**
+     * Calcule et retourne tous les déplacements du fou égocentriquement.
+     * @param board Echiquier sur lequel évaluer les déplacements possibles.
+     * @return Retourne la liste des déplacements possibles.
+     */
+    ArrayList<Movement> possibleMovements(Board board)
     {
-        ArrayList<Movement> moves = new ArrayList<>();
+        ArrayList<Movement> movements = new ArrayList<Movement>();
 
-        int diffX = Math.abs(getX() - toX);
-        int diffY = Math.abs(getY() - toY);
-
-        Piece pDest = getX() < toX ? board.getPiece(7, getY()) :
-                board.getPiece(0, getY());
-
-        if (diffX == 2 && !hasMoved && toY == getY() && checkForCastling(board, pDest))
+        //Vérifications des 8 cases adjacente
+        // 3 supérieures et inférieurs
+        for(int offsetX = -1; offsetX <= 1; ++offsetX)
         {
-            int factor = toX < getX() ? -1 : 1;
+            if(baseCheck(board, x + offsetX, y+1))
+                movements.add(new Movement(this, x+offsetX, y+1));
 
-            hasMoved = true;
-            moves.add(new Movement(this, null, getX() + factor, toY));
-            moves.add(new Movement(this, null, toX, toY));
-            moves.add(new Movement(pDest, null, toX - factor, toY));
+            if(baseCheck(board, x + offsetX, y-1))
+                movements.add(new Movement(this, x+offsetX, y-1));
         }
-        else if ((board.freeBox(toX, toY) || !board.alliesBox(this.color,
-                toX, toY)) && diffX < 2 && diffY < 2)
+        // cases gauche et droite
+        for(int offsetX = -1; offsetX <= 1; offsetX += 2)
         {
-            hasMoved = true;
-            pDest = board.getPiece(toX, toY);
-            moves.add(new Movement(this, pDest, toX, toY));
+            if (baseCheck(board, x + offsetX, y))
+                movements.add(new Movement(this, x + offsetX, y));
         }
-        return moves;
+
+        boolean castlingPossible = true;
+        // Grand Roques
+        if(board.isValidPosition(x-4, y) && board.isAllySpot(color,x-4, y))
+        {
+            if(board.getPiece(x-4,y).getClass() == Rook.class)
+            {
+                for (int offsetX = 1; offsetX < 4; ++offsetX)
+                {
+                    if (!board.isFreeSpot(x - offsetX, y))
+                    {
+                        castlingPossible = false;
+                        break;
+                    }
+                }
+
+                if (castlingPossible)
+                    movements.add(new CastlingMovement(this, (Rook) board.getPiece(x - 4, y), x - 2, y));
+            }
+        }
+        castlingPossible = true;
+        // Grand Roques
+        if(board.isValidPosition(x+3, y) && board.isAllySpot(color,x+3, y))
+        {
+            if (board.getPiece(x+3, y).getClass() == Rook.class)
+            {
+                for (int offsetX = 1; offsetX < 3; ++offsetX)
+                {
+                    if (!board.isFreeSpot(x + offsetX, y))
+                    {
+                        castlingPossible = false;
+                        break;
+                    }
+                }
+                if (castlingPossible)
+                    movements.add(new CastlingMovement(this, (Rook) board.getPiece(x + 3, y), x + 2, y));
+            }
+        }
+        return  movements;
     }
-
-    private boolean checkForCastling(Board board, Piece pDest)
-    {
-
-        return  !super.hasMoved()
-                && pDest != null && pDest.color == this.color
-                && pDest.type == PieceType.ROOK
-                && !((Rook) pDest).hasMoved()
-                && checkLinearMovement(board, getX(), getY(), pDest.getX(), pDest.getY());
-    }
-
 }

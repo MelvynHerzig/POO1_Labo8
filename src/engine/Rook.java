@@ -5,27 +5,70 @@ import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Rook extends PieceSpecialFirstMove implements LinearMovement
+/**
+ * Classe modélisant une tour.
+ * Inclus deux fonctions "controller" qui permettent de
+ * calculer les movements possibles.
+ */
+class Rook extends PieceSpecialFirstMove
 {
 
-    Rook(PlayerColor aColor, int x, int y)
+    /**
+     * Constructeur.
+     * @param color Couleur de la tour.
+     * @param x Position x.
+     * @param y Position y.
+     */
+    Rook(PlayerColor color, int x, int y)
     {
-        super(aColor, PieceType.ROOK, x, y);
+        super(color, PieceType.ROOK, x, y);
     }
 
-    @Override
-    ArrayList<Movement> canMove(Board board, int toX, int toY)
+    /**
+     * Calcule et retourne tous les déplacements de la tour égocentriquement.
+     * @param board Echiquier sur lequel évaluer les déplacements possibles.
+     * @return Retourne la liste des déplacements possibles.
+     */
+    ArrayList<Movement> possibleMovements(Board board)
     {
-        ArrayList<Movement> moves = new ArrayList<>();
-        Piece pDest = board.getPiece(toX, toY);
+        ArrayList<Movement> movements = new ArrayList<Movement>();
+        int offset = 1;
+        //En haut
+       while(baseCheck( board, x, y+offset))
+       {
+           movements.add(new Movement(this, x, y+offset));
+           if(!board.isFreeSpot(x, y+offset) && !board.isAllySpot(color,x, y+offset)) break;
+           ++offset;
+       }
 
-        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX, toY)) && checkLinearMovement(board, getX(), getY(), toX, toY))
+        //En bas
+        offset = 1;
+        while(baseCheck( board, x, y-offset))
         {
-            hasMoved = true;
-            moves.add(new Movement(this, pDest, toX, toY));
+            movements.add(new Movement(this, x, y-offset));
+            if(!board.isFreeSpot(x, y-offset) && !board.isAllySpot(color, x, y-offset)) break;
+            ++offset;
         }
 
-        return moves;
-    }
+        //A droite
+        offset = 1;
+        while(baseCheck( board, x+offset, y))
+        {
+            movements.add(new Movement(this, x+offset, y));
+            if(!board.isFreeSpot(x+offset, y) && !board.isAllySpot(color, x+offset, y)) break;
+            ++offset;
+        }
 
+        //A gauche
+        offset = 1;
+        while(baseCheck( board, x-offset, y))
+        {
+            movements.add(new Movement(this, x-offset, y));
+            if(!board.isFreeSpot(x-offset, y) && !board.isAllySpot(color, x-offset, y)) break;
+            ++offset;
+        }
+
+        return  movements;
+
+    }
 }

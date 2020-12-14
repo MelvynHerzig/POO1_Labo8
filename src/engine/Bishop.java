@@ -5,24 +5,59 @@ import chess.PlayerColor;
 
 import java.util.ArrayList;
 
-class Bishop extends Piece implements AngularMovement
+class Bishop extends Piece
 {
     Bishop(PlayerColor aColor, int x, int y)
     {
         super(aColor, PieceType.BISHOP, x, y);
     }
 
-    @Override
-    ArrayList<Movement> canMove(Board board, int toX, int toY)
-    {
-        ArrayList<Movement> moves = new ArrayList<>();
-        Piece pDest = board.getPiece(toX, toY);
 
-        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX, toY)) && checkAngularMovement(board, getX(), getY(), toX, toY))
+    /**
+     * Calcule et retourne tous les déplacements du fou égocentriquement.
+     * @param board Echiquier sur lequel évaluer les déplacements possibles.
+     * @return Retourne la liste des déplacements possibles.
+     */
+    ArrayList<Movement> possibleMovements(Board board)
+    {
+        ArrayList<Movement> movements = new ArrayList<Movement>();
+        int offset = 1;
+        //En haut-droite
+        while(baseCheck( board, x+offset, y+offset))
         {
-            moves.add(new Movement(this, pDest, toX, toY));
+            movements.add(new Movement(this, x+offset, y+offset));
+            if(!board.isFreeSpot(x+offset, y+offset) && !board.isAllySpot(color,x+offset, y+offset)) break;
+            ++offset;
         }
 
-        return moves;
+        //En haut-gauche
+        offset = 1;
+        while(baseCheck( board, x-offset, y+offset))
+        {
+            movements.add(new Movement(this, x-offset, y+offset));
+            if(!board.isFreeSpot(x-offset, y+offset) && !board.isAllySpot(color,x-offset, y+offset)) break;
+            ++offset;
+        }
+
+        //En bas-droite
+        offset = 1;
+        while(baseCheck( board, x+offset, y-offset))
+        {
+            movements.add(new Movement(this, x+offset, y-offset));
+            if(!board.isFreeSpot(x+offset, y-offset) && !board.isAllySpot(color,x+offset, y-offset)) break;
+            ++offset;
+        }
+
+        //En bas-gauche
+        offset = 1;
+        while(baseCheck( board, x-offset, y-offset))
+        {
+            movements.add(new Movement(this, x-offset, y-offset));
+            if(!board.isFreeSpot(x-offset, y-offset) && !board.isAllySpot(color,x-offset, y-offset)) break;
+            ++offset;
+        }
+
+        return  movements;
+
     }
 }

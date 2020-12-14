@@ -12,21 +12,35 @@ class Knight extends Piece
         super(aColor, PieceType.KNIGHT, x, y);
     }
 
-    @Override
-    ArrayList<Movement> canMove(Board board, int toX, int toY)
+    /**
+     * Calcule et retourne tous les déplacements du fou égocentriquement.
+     * @param board Echiquier sur lequel évaluer les déplacements possibles.
+     * @return Retourne la liste des déplacements possibles.
+     */
+    ArrayList<Movement> possibleMovements(Board board)
     {
-        ArrayList<Movement> moves = new ArrayList<>();
-        Piece pDest = board.getPiece(toX, toY);
+        ArrayList<Movement> movements = new ArrayList<Movement>();
 
-        int x = Math.abs(this.getX() - toX);
-        int y = Math.abs(this.getY() - toY);
-
-        if((board.freeBox(toX, toY) || !board.alliesBox(this.color, toX, toY)) && x * y == 2)
+        //Deux cases au dessus et en dessous
+        for(int offsetX = -1; offsetX <= 1; offsetX +=2)
         {
-            moves.add(new Movement(this, pDest, toX, toY));
+            if(baseCheck(board, x+offsetX, y+2))
+                movements.add(new Movement(this, x+offsetX, y+2));
+            if(baseCheck(board, x+offsetX, y-2))
+                movements.add(new Movement(this, x+offsetX, y-2));
         }
 
-        return moves;
+        //Deux cases à droite et à gauche
+        for(int offsetY = -1; offsetY <= 1; offsetY +=2)
+        {
+            if(baseCheck(board, x+2, y+offsetY))
+                movements.add(new Movement(this, x+2, y+offsetY));
+            if(baseCheck(board, x-2, y-offsetY))
+                movements.add(new Movement(this, x-2, y-offsetY));
+        }
+
+
+        return  movements;
 
     }
 }

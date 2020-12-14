@@ -45,26 +45,29 @@ public class ChessGame implements chess.ChessController
             return false;
         }
 
-        ArrayList<Movement> movements = p.canMove(tmp, toX, toY);
-        // Si auncun mouvmeent possible, return pour ne pas reprint
-        // un board identique.
-        if(movements.isEmpty()) return false;
+        Movement movement = p.canMove(tmp, toX, toY);
 
-        for (Movement movement : movements)
+        // Si auncun mouvement possible, return pour ne pas reprint
+        // un board identique.
+        if(movement == null) return false;
+
+        if(movement.getClass() == PawnMovement.class)
         {
-            applyMovement(tmp, movement);
-            if (checkMate(tmp, playerTurn))
-            {
-                return false;
-            }
+           if(!applyPawnMovement(tmp, (PawnMovement)movement)) return false;
         }
+        else if(movement.getClass() == CastlingMovement.class)
+        {
+            if(!applyCastling(tmp, (CastlingMovement)movement)) return false;
+        }
+        tmp.movePiece(movement.getPieceToMove().getX(), movement.getPieceToMove().getY(), movement.getToX(), movement.getToY());
+
+        if (checkMate(tmp, playerTurn)) return false;
 
         board = tmp;
         updateView();
 
         // Changement de tour
-        playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE :
-                                                       PlayerColor.BLACK;
+        playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
 
         return true;
     }
@@ -88,24 +91,40 @@ public class ChessGame implements chess.ChessController
         updateView();
     }
 
-    /**
-     * Applique le movement m sur le board b.
-     * @param b Modèle du board sur lequel appliquer le mouvement.
-     * @param m Le movement à appliquer.
-     * @return Retourne vrai le pouvement peut être fait sans mettre en échec
-     *         son propre roi sinon false.
-     */
-    private boolean applyMovement(Board b, Movement m)
-    {
-        Piece toMove = m.getPieceToMove();
-        Piece toKill = m.getPieceToKill();
 
-        if (toKill != null)
+    private boolean applyPawnMovement(Board b, PawnMovement pm)
+    {
+        Pawn movedPawn = (Pawn)pm.getPieceToMove();
+        Pawn enPassantPawn = pm.getPieceToKill();
+        int noLinePassant = (playerTurn == PlayerColor.BLACK) ? 3 : 4;
+
+        // Déplacement de 2 cases impossible si déjà déplacée.
+        if(Math.abs(pm.getToY() - movedPawn.getY()) == 2)
         {
-            b.killPiece(toKill.getX(), toKill.getY());
+            if(movedPawn.hasMoved()) return false;
         }
 
-        b.movePiece(toMove.getX(), toMove.getY(), m.getToX(), m.getToY());
+        // Vérification en passant
+        if(pm.getToX() != movedPawn.getX())
+        {
+            if(enPassantPawn != null && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant)
+            {
+                b.killPiece(enPassantPawn.getX(), enPassantPawn.getY());
+            }
+            else if( b.isFreeSpot(pm.getToX(), pm.getToY()) || b.isAllySpot(movedPawn.getColor(), pm.getToX(), pm.getToY()))
+            {
+                return false;
+            }
+        }
+
+        movedPawn.setMoved();
+
+        return true;
+    }
+
+    private boolean applyCastling(Board b, CastlingMovement cm)
+    {
+
 
         return true;
     }
@@ -118,6 +137,14 @@ public class ChessGame implements chess.ChessController
      */
     private boolean checkMate(Board b, PlayerColor playerColor)
     {
+        ArrayList<Piece> enemies = b.getEnnemyPieces(playerColor);
+        King k = b.getKing(playerColor);
+
+        for(Piece p: enemies)
+        {
+            if(p.canMove(b, k.getX(), k.getY()) != null) return true;
+        }
+
         return false;
     }
 
