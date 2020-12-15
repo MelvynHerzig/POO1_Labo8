@@ -15,7 +15,7 @@ class Board implements Cloneable
     // Références sur les différentes pièces en fonctions des cases du board.
     private Piece[][] board;
 
-    private final int size = 8;
+    private final int SIZE = 8;
 
     private Piece lastMovedPiece;
 
@@ -66,32 +66,32 @@ class Board implements Cloneable
     }
 
     /**
-     * @param currentPlayer Couleur du joueur qui joue.
+     * @param piecesColor Couleur du joueur qui joue.
      * @return Retourne les pièces opposées à currentPlayer
      */
-    ArrayList<Piece> getEnnemyPieces(PlayerColor currentPlayer)
+    ArrayList<Piece> getPieces(PlayerColor piecesColor)
     {
         ArrayList<Piece> pieces = new ArrayList<Piece>();
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
-                if(!isFreeSpot(x,y) && !isAllySpot(currentPlayer,x ,y)) pieces.add(getPiece(x,y));
+                if(!isFreeSpot(x,y) && isAllySpot(piecesColor,x ,y)) pieces.add(getPiece(x,y));
             }
         return pieces;
     }
 
     /**
      *
-     * @param currentPlayer Couleur du joueur qui joue.
-     * @return Retourne une référence sur le roi de currentPlayer
+     * @param kingColor Couleur du roi recherché.
+     * @return Retourne une référence sur le roi.
      */
-    King getKing(PlayerColor currentPlayer)
+    King getKing(PlayerColor kingColor)
     {
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
                 Piece p;
-                if(isAllySpot(currentPlayer,x,y) && (p = getPiece(x,y)).type == PieceType.KING)
+                if(isAllySpot(kingColor,x,y) && (p = getPiece(x,y)).type == PieceType.KING)
                     return (King) p;
             }
 
@@ -103,7 +103,7 @@ class Board implements Cloneable
      */
     void reset()
     {
-        board = new Piece[size][size];
+        board = new Piece[SIZE][SIZE];
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
@@ -120,37 +120,7 @@ class Board implements Cloneable
      */
     int getSize()
     {
-        return size;
-    }
-
-    /**
-     * Crée les pions d'une couleur sur la ligne donnée.
-     * @param color Couleur des pions.
-     * @param noLine Numéro de ligne où les positionner.
-     */
-    private void createFrontLine(PlayerColor color, int noLine)
-    {
-        for (int i = 0; i < size; i++)
-            board[noLine][i] = new Pawn(color, i, noLine);
-    }
-
-    /**
-     * Crée les tours, fous, cavaliers, roi et reine de couleur color à la ligne
-     * noLine.
-     * @param color Couleurs à affecter aux pièces.
-     * @param noLine Numéro de ligne où les positionner.
-     */
-    private void createBackLine(PlayerColor color, int noLine)
-    {
-        board[noLine][0] = new Rook(color, 0, noLine);
-        board[noLine][1] = new Knight(color, 1, noLine);
-        board[noLine][2] = new Bishop(color, 2, noLine);
-        board[noLine][3] = new Queen(color, 3, noLine);
-        board[noLine][4] = new King(color, 4, noLine);
-
-        board[noLine][5] = new Bishop(color, 5, noLine);
-        board[noLine][6] = new Knight(color, 6, noLine);
-        board[noLine][7] = new Rook(color, 7, noLine);
+        return SIZE;
     }
 
     /**
@@ -173,10 +143,10 @@ class Board implements Cloneable
         try
         {
             b = (Board) super.clone();
-            b.board = new Piece[size][size];
-            for (int y = 0; y < size; ++y)
+            b.board = new Piece[SIZE][SIZE];
+            for (int y = 0; y < SIZE; ++y)
             {
-                for (int x = 0; x < size; ++x)
+                for (int x = 0; x < SIZE; ++x)
                 {
                     b.board[y][x] = board[y][x] == null ? null : board[y][x].clone();
                 }
@@ -247,6 +217,37 @@ class Board implements Cloneable
         if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position invalide");
 
         board[y][x] = p;
+    }
+
+    /**
+     * Crée les pions d'une couleur sur la ligne donnée.
+     * @param color Couleur des pions.
+     * @param noLine Numéro de ligne où les positionner.
+     */
+    private void createFrontLine(PlayerColor color, int noLine)
+    {
+        int promotionOnLine = color == PlayerColor.WHITE ? getSize()-1 : 0;
+        for (int i = 0; i < SIZE; i++)
+            board[noLine][i] = new Pawn(color, i, noLine, promotionOnLine);
+    }
+
+    /**
+     * Crée les tours, fous, cavaliers, roi et reine de couleur color à la ligne
+     * noLine.
+     * @param color Couleurs à affecter aux pièces.
+     * @param noLine Numéro de ligne où les positionner.
+     */
+    private void createBackLine(PlayerColor color, int noLine)
+    {
+        board[noLine][0] = new Rook(color, 0, noLine);
+        board[noLine][1] = new Knight(color, 1, noLine);
+        board[noLine][2] = new Bishop(color, 2, noLine);
+        board[noLine][3] = new Queen(color, 3, noLine);
+        board[noLine][4] = new King(color, 4, noLine);
+
+        board[noLine][5] = new Bishop(color, 5, noLine);
+        board[noLine][6] = new Knight(color, 6, noLine);
+        board[noLine][7] = new Rook(color, 7, noLine);
     }
 
 }

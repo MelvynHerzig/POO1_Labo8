@@ -9,22 +9,28 @@ package engine;
  */
 class Movement
 {
-    private final Piece toMove;
+    private final int fromX;
+    private final int fromY;
 
     private final int toX;
     private final int toY;
 
-    Movement(Piece toMove, int toX, int toY)
+    Movement(int fromX, int fromY, int toX, int toY)
     {
-        this.toMove = toMove;
-
+        this.fromX = fromX;
+        this.fromY = fromY;
         this.toX = toX;
         this.toY = toY;
     }
 
-    Piece getPieceToMove()
+    int getFromX()
     {
-        return toMove;
+        return fromX;
+    }
+
+    int getFromY()
+    {
+        return fromY;
     }
 
     int getToX()

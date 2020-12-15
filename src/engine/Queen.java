@@ -25,7 +25,7 @@ class Queen extends Piece implements ChessView.UserChoice
         //En haut-droite
         while(baseCheck( board, x+offset, y+offset))
         {
-            movements.add(new Movement(this, x+offset, y+offset));
+            movements.add(new Movement(x, y, x+offset, y+offset));
             if(!board.isFreeSpot(x+offset, y+offset) && !board.isAllySpot(color,x+offset, y+offset)) break;
             ++offset;
         }
@@ -34,7 +34,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x-offset, y+offset))
         {
-            movements.add(new Movement(this, x-offset, y+offset));
+            movements.add(new Movement(x, y, x-offset, y+offset));
             if(!board.isFreeSpot(x-offset, y+offset) && !board.isAllySpot(color,x-offset, y+offset)) break;
             ++offset;
         }
@@ -43,7 +43,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x+offset, y-offset))
         {
-            movements.add(new Movement(this, x+offset, y-offset));
+            movements.add(new Movement(x, y, x+offset, y-offset));
             if(!board.isFreeSpot(x+offset, y-offset) && !board.isAllySpot(color,x+offset, y-offset)) break;
             ++offset;
         }
@@ -52,7 +52,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x-offset, y-offset))
         {
-            movements.add(new Movement(this, x-offset, y-offset));
+            movements.add(new Movement(x, y, x-offset, y-offset));
             if(!board.isFreeSpot(x-offset, y-offset) && !board.isAllySpot(color,x-offset, y-offset)) break;
             ++offset;
         }
@@ -61,7 +61,7 @@ class Queen extends Piece implements ChessView.UserChoice
         //En haut
         while(baseCheck( board, x, y+offset))
         {
-            movements.add(new Movement(this, x, y+offset));
+            movements.add(new Movement(x, y, x, y+offset));
             if(!board.isFreeSpot( x, y+offset) && !board.isAllySpot(color, x, y+offset)) break;
             ++offset;
         }
@@ -70,7 +70,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x, y-offset))
         {
-            movements.add(new Movement(this, x, y-offset));
+            movements.add(new Movement(x, y, x, y-offset));
             if(!board.isFreeSpot( x, y-offset) && !board.isAllySpot(color, x, y-offset)) break;
             ++offset;
         }
@@ -79,7 +79,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x+offset, y))
         {
-            movements.add(new Movement(this, x+offset, y));
+            movements.add(new Movement(x, y, x+offset, y));
             if(!board.isFreeSpot( x+offset, y) && !board.isAllySpot(color, x+offset, y)) break;
             ++offset;
         }
@@ -88,7 +88,7 @@ class Queen extends Piece implements ChessView.UserChoice
         offset = 1;
         while(baseCheck( board, x-offset, y))
         {
-            movements.add(new Movement(this, x-offset, y));
+            movements.add(new Movement(x, y, x-offset, y));
             if(!board.isFreeSpot( x-offset, y) && !board.isAllySpot(color, x-offset, y)) break;
             ++offset;
         }
@@ -99,6 +99,6 @@ class Queen extends Piece implements ChessView.UserChoice
    @Override
    public String textValue()
    {
-      return "Queen";
+      return toString();
    }
 }

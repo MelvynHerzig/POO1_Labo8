@@ -26,16 +26,16 @@ class King extends PieceSpecialFirstMove
         for(int offsetX = -1; offsetX <= 1; ++offsetX)
         {
             if(baseCheck(board, x + offsetX, y+1))
-                movements.add(new Movement(this, x+offsetX, y+1));
+                movements.add(new Movement(x, y, x+offsetX, y+1));
 
             if(baseCheck(board, x + offsetX, y-1))
-                movements.add(new Movement(this, x+offsetX, y-1));
+                movements.add(new Movement(x, y, x+offsetX, y-1));
         }
         // cases gauche et droite
         for(int offsetX = -1; offsetX <= 1; offsetX += 2)
         {
             if (baseCheck(board, x + offsetX, y))
-                movements.add(new Movement(this, x + offsetX, y));
+                movements.add(new Movement(x, y, x + offsetX, y));
         }
 
         boolean castlingPossible = true;
@@ -54,7 +54,7 @@ class King extends PieceSpecialFirstMove
                 }
 
                 if (castlingPossible)
-                    movements.add(new CastlingMovement(this, (Rook) board.getPiece(x - 4, y), x - 2, y));
+                    movements.add(new CastlingMovement(x, y, x - 2, y, x - 4, y));
             }
         }
         castlingPossible = true;
@@ -72,7 +72,7 @@ class King extends PieceSpecialFirstMove
                     }
                 }
                 if (castlingPossible)
-                    movements.add(new CastlingMovement(this, (Rook) board.getPiece(x + 3, y), x + 2, y));
+                    movements.add(new CastlingMovement(x, y, x + 2, y,x + 3, y));
             }
         }
         return  movements;

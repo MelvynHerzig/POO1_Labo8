@@ -19,7 +19,6 @@ public class ChessGame implements chess.ChessController
 
     PlayerColor checkedPlayer;
     PlayerColor checkedMatedPlayer;
-    PlayerColor patPlayer;
 
     @Override
     /**
@@ -71,31 +70,21 @@ public class ChessGame implements chess.ChessController
         // un board identique.
         if(movement == null) return false;
 
-        if(movement.getClass() == PawnMovement.class)
-        {
-           if(!applyPawnMovement(tmp, (PawnMovement)movement)) return false;
-        }
-        else if(movement.getClass() == CastlingMovement.class)
-        {
-            if(!applyCastling(tmp, (CastlingMovement)movement)) return false;
-        }
-        else
-        {
-            tmp.movePiece(movement.getPieceToMove().getX(), movement.getPieceToMove().getY(), movement.getToX(), movement.getToY());
-        }
+        if(! applyMovement(tmp, movement)) return false;
 
-        if (checkMate(tmp, playerTurn)) return false;
+
+        if (isCheck(tmp, playerTurn)) return false;
 
         board = tmp;
 
         // Promotion
-        checkAndAskPawnPromotion(movement.getPieceToMove());
+        checkAndAskPawnPromotion(board.getLastMovedPiece());
         updateView();
 
         // Echec - mat pat et tutti quanti
-        if(checkMate(board, playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK))
+        if(isCheck(board, opponent(playerTurn)))
         {
-            checkedPlayer = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
+            checkedPlayer = opponent(playerTurn);
             view.displayMessage("Check! " + checkedPlayer);
         }
         else
@@ -104,28 +93,16 @@ public class ChessGame implements chess.ChessController
             view.displayMessage("");
         }
 
-        ArrayList<Piece> pieces = board.getEnnemyPieces(playerTurn);
-        checkedMatedPlayer = PlayerColor.BLACK == playerTurn ? PlayerColor.WHITE : PlayerColor.BLACK;
+        ArrayList<Piece> pieces = board.getPieces(opponent(playerTurn));
+        checkedMatedPlayer = opponent(playerTurn);
         for(Piece p1 : pieces)
         {
-            ArrayList<Movement> movements = p1.possibleMovements(board);
-            for(Movement m : movements)
+            for(Movement m : p1.possibleMovements(board))
             {
-                Board tmp2 = board.clone();
-                if(m.getClass() == PawnMovement.class)
-                {
-                    if(!applyPawnMovement(tmp2, (PawnMovement)m)) return false;
-                }
-                else if(m.getClass() == CastlingMovement.class)
-                {
-                    if(!applyCastling(tmp2, (CastlingMovement)m)) return false;
-                }
-                else
-                {
-                    tmp2.movePiece(m.getPieceToMove().getX(), m.getPieceToMove().getY(), m.getToX(), m.getToY());
-                }
+               Board tmp2 = board.clone();
+               applyMovement(tmp2, m);
 
-                if (!checkMate(tmp2,PlayerColor.BLACK == playerTurn ? PlayerColor.WHITE : PlayerColor.BLACK))
+                if (!isCheck(tmp2,opponent(playerTurn)))
                 {
                     checkedMatedPlayer = null;
                     break;
@@ -137,27 +114,27 @@ public class ChessGame implements chess.ChessController
         else if(checkedMatedPlayer != null && checkedPlayer == null) view.displayMessage("PAT " + checkedMatedPlayer);
 
         // Changement de tour
-        playerTurn = playerTurn == PlayerColor.BLACK ? PlayerColor.WHITE : PlayerColor.BLACK;
+        playerTurn = opponent(playerTurn);
 
         return true;
     }
 
-    /**
-     * Verifie si la dernière pièce bougé peut être promue.
-     * @param lastMovedPiece Dernière pièce déplacée.
-     */
-    void checkAndAskPawnPromotion(Piece lastMovedPiece)
+    Boolean applyMovement(Board b, Movement m)
     {
-        if(lastMovedPiece.getClass() != Pawn.class) return;
+        if(m.getClass() == PawnMovement.class)
+        {
+            if(!applyPawnMovement(b, (PawnMovement)m)) return false;
+        }
+        else if(m.getClass() == CastlingMovement.class)
+        {
+            if(!applyCastling(b, (CastlingMovement)m)) return false;
+        }
+        else
+        {
+            b.movePiece(m.getFromX(), m.getFromY(), m.getToX(), m.getToY());
+        }
 
-        int validLine = playerTurn == PlayerColor.WHITE ? board.getSize()-1 : 0;
-
-        if(lastMovedPiece.getY() != validLine) return;
-
-        int x = lastMovedPiece.getX(), y = lastMovedPiece.getY();
-        PlayerColor c = lastMovedPiece.getColor();
-        Piece p = view.askUser("Pawn promoted", "What upgrade do you chose ?", new Queen(c,x,y), new Rook(c,x,y), new Bishop(c,x,y), new Knight(c,x,y));
-        board.setPiece(x,y,p);
+        return true;
     }
 
     @Override
@@ -182,8 +159,10 @@ public class ChessGame implements chess.ChessController
 
     private boolean applyPawnMovement(Board b, PawnMovement pm)
     {
-        Pawn movedPawn = (Pawn)pm.getPieceToMove();
-        Pawn enPassantPawn = pm.getPieceToKill();
+        Pawn movedPawn = (Pawn)b.getPiece(pm.getFromX(), pm.getFromY());
+        Pawn enPassantPawn = null;
+        if(b.isValidPosition(pm.getToKillX(), pm.getToKillY()))
+            enPassantPawn = (Pawn)b.getPiece(pm.getToKillX(), pm.getToKillY());
         int noLinePassant = (playerTurn == PlayerColor.BLACK) ? 3 : 4;
 
         // Déplacement de 2 cases impossible si déjà déplacée.
@@ -196,7 +175,7 @@ public class ChessGame implements chess.ChessController
         // Vérification en passant
         if(pm.getToX() != movedPawn.getX())
         {
-            if(enPassantPawn != null && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant && enPassantPawn.getMoved2())
+            if(b.isValidPosition(pm.getToKillX(), pm.getToKillY()) && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant && enPassantPawn.getMoved2())
             {
                 b.killPiece(enPassantPawn.getX(), enPassantPawn.getY());
             }
@@ -206,7 +185,7 @@ public class ChessGame implements chess.ChessController
             }
         }
 
-        b.movePiece(pm.getPieceToMove().getX(), pm.getPieceToMove().getY(),pm.getToX(), pm.getToY());
+        b.movePiece(pm.getFromX(), pm.getFromY(),pm.getToX(), pm.getToY());
         movedPawn.setMoved();
 
         return true;
@@ -214,17 +193,17 @@ public class ChessGame implements chess.ChessController
 
     private boolean applyCastling(Board b, CastlingMovement cm)
     {
-        Rook r = cm.getRook();
-        King k = (King)cm.getPieceToMove();
+        Rook r = (Rook) b.getPiece(cm.getrX(), cm.getrY());
+        King k = (King) b.getPiece(cm.getFromX(), cm.getFromY());
         int direction = r.getX() > k.getX() ? 1 : -1;
 
-        if(r.hasMoved || k.hasMoved || checkMate(b, playerTurn)) return false;
+        if(r.hasMoved || k.hasMoved || isCheck(b, playerTurn)) return false;
 
         // On test les deux cases sur lequels le roi va se déplacer
         for(int i = 0; i < 2; ++i)
         {
             b.movePiece(k.getX(), k.getY(), k.getX()+1*direction, k.getY());
-            if(checkMate(b, playerTurn)) return false;
+            if(isCheck(b, playerTurn)) return false;
         }
 
         k.setMoved();
@@ -236,11 +215,11 @@ public class ChessGame implements chess.ChessController
      * Vérifie si la couleur du joueur playerColor est en échec sur le board b.
      * @param b Board sur lequel vérifier.
      * @param playerColor joueur à vérifier la mise en échec.
-     * @return
+     * @return Vrai si le joueur est en échec.
      */
-    private boolean checkMate(Board b, PlayerColor playerColor)
+    private boolean isCheck(Board b, PlayerColor playerColor)
     {
-        ArrayList<Piece> enemies = b.getEnnemyPieces(playerColor);
+        ArrayList<Piece> enemies = b.getPieces(opponent(playerColor));
         King k = b.getKing(playerColor);
 
         for(Piece p: enemies)
@@ -249,6 +228,38 @@ public class ChessGame implements chess.ChessController
         }
 
         return false;
+    }
+
+    /**
+     * Verifie si la dernière pièce bougée peut être promue.
+     * @param lastMovedPiece Dernière pièce déplacée.
+     */
+    private void checkAndAskPawnPromotion(Piece lastMovedPiece)
+    {
+        if(lastMovedPiece == null || lastMovedPiece.getClass() != Pawn.class) return;
+
+        if(lastMovedPiece.getY() != ((Pawn) lastMovedPiece).getPromotionLine()) return;
+
+        int x = lastMovedPiece.getX(), y = lastMovedPiece.getY();
+        PlayerColor c = lastMovedPiece.getColor();
+        Piece p = view.askUser("Pawn promoted", "What upgrade do you chose ?",
+                                new Queen(c,x,y) ,
+                                new Rook(c,x,y)  ,
+                                new Bishop(c,x,y),
+                                new Knight(c,x,y));
+
+        board.setPiece(x,y,p);
+    }
+
+    /**
+     * Calcule et retourne la couleur opposée au joueur actuel.
+     * @param currentPlayer Joueur actuel
+     * @return Retourne PlayerColor.BLACK si currentPlayer = PlayerColor.WHITE
+     *                  PlayerColor.WHITE si currentPlayer = PlayerColor.BLACK
+     */
+    private PlayerColor opponent(PlayerColor currentPlayer)
+    {
+        return currentPlayer == PlayerColor.WHITE ? PlayerColor.BLACK : PlayerColor.WHITE;
     }
 
     /**

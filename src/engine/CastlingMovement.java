@@ -8,27 +8,35 @@ package engine;
  */
 public class CastlingMovement extends Movement
 {
-   // Tour avec laquelle le roque est fait
-   final Rook rookSwapped;
 
+   int rX;
+   int rY;
    /**
-    * Constructeur.
-    * @param toMove Roi à roquer.
-    * @param rook Tour complémentaire au movement.
-    * @param toX Position d'arrivée X du roi.
-    * @param toY Position d'arrivée Y du roi.
+    * Effectue le roque pour un roi kX,kY avec une tour rX, rY, en le déplacant
+    * en toX toY.
+    * @param kX Position x du roi.
+    * @param kY Position y du roi.
+    * @param toX Position de destionation x du roi.
+    * @param toY Position de destionation y du roi.
+    * @param rX Position x de la tour à roquer.
+    * @param rY Position y de la tour à roquer.
     */
-   CastlingMovement(Piece toMove, Rook rook, int toX, int toY)
+   CastlingMovement(int kX, int kY, int toX, int toY, int rX, int rY)
    {
-      super(toMove, toX, toY);
-      rookSwapped = rook;
+      super(kX, kY, toX, toY);
+      this.rX = rX;
+      this.rY = rY;
    }
 
-   /**
-    * @return Retourne la tour complémentaire au mouvement.
-    */
-   Rook getRook()
+   int getrX()
    {
-      return rookSwapped;
+      return rX;
    }
+
+   int getrY()
+   {
+      return rY;
+   }
+
+
 }

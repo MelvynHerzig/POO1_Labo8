@@ -150,4 +150,9 @@ abstract class Piece implements Cloneable
 
         return p;
     }
+
+    public String toString()
+    {
+        return getClass().getSimpleName();
+    }
 }

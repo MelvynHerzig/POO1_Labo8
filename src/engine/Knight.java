@@ -26,18 +26,18 @@ class Knight extends Piece implements ChessView.UserChoice
         for(int offsetX = -1; offsetX <= 1; offsetX +=2)
         {
             if(baseCheck(board, x+offsetX, y+2))
-                movements.add(new Movement(this, x+offsetX, y+2));
+                movements.add(new Movement(x, y, x+offsetX, y+2));
             if(baseCheck(board, x+offsetX, y-2))
-                movements.add(new Movement(this, x+offsetX, y-2));
+                movements.add(new Movement(x, y, x+offsetX, y-2));
         }
 
         //Deux cases à droite et à gauche
         for(int offsetY = -1; offsetY <= 1; offsetY +=2)
         {
             if(baseCheck(board, x+2, y+offsetY))
-                movements.add(new Movement(this, x+2, y+offsetY));
+                movements.add(new Movement(x, y, x+2, y+offsetY));
             if(baseCheck(board, x-2, y-offsetY))
-                movements.add(new Movement(this, x-2, y-offsetY));
+                movements.add(new Movement(x, y, x-2, y-offsetY));
         }
 
 
@@ -48,6 +48,6 @@ class Knight extends Piece implements ChessView.UserChoice
     @Override
     public String textValue()
     {
-        return "Knight";
+        return toString();
     }
 }

@@ -8,21 +8,23 @@ package engine;
  */
 public class PawnMovement extends Movement
 {
-   // Un pion peut tuer sur la prise en passant, la cible ne se situe donc pas
-   // Sur la case de destination.
-   private final Pawn toKill;
+   int toKillX;
+   int toKillY;
 
-   PawnMovement(Piece toMove, Pawn toKill, int toX, int toY)
+   PawnMovement(int fromX, int fromY, int toX, int toY, int toKillX, int toKillY)
    {
-      super(toMove, toX, toY);
-      this.toKill = toKill;
+      super(fromX, fromY, toX, toY);
+      this.toKillX = toKillX;
+      this.toKillY = toKillY;
    }
 
-   /**
-    * @return Retourne le pion tué par une prise en passant sinon null.
-    */
-   Pawn getPieceToKill()
+   int getToKillX()
    {
-      return toKill;
+      return toKillX;
+   }
+
+   int getToKillY()
+   {
+      return toKillY;
    }
 }
