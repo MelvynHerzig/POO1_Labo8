@@ -18,7 +18,7 @@ public class ChessGame implements chess.ChessController
     private PlayerColor playerTurn;
 
     PlayerColor checkedPlayer;
-    PlayerColor checkedMatedPlayer;
+    boolean canPlayerMove;
 
     @Override
     /**
@@ -39,84 +39,65 @@ public class ChessGame implements chess.ChessController
      */
     public boolean move(int fromX, int fromY, int toX, int toY)
     {
-        //Vérifications de fin de tour
-        // Echec
-        if(checkedMatedPlayer != null)
-        {
-            view.displayMessage("Check Mate! " + checkedMatedPlayer);
+        boolean isValid = false;
+        Piece p = board.getPiece(fromX, fromY);
 
-            if(checkedPlayer == null)
-                view.displayMessage("PAT" + checkedMatedPlayer);
+        if (p != null &&  p.color == playerTurn)
+        {
+            Movement movement = p.canMove(board, toX, toY);
+
+            // Si auncun mouvement possible, return pour ne pas reprint
+            // un board identique.
+            if(movement != null && applyMovement(board, movement))
+            {
+                if (!isCheck(board, playerTurn))
+                {
+                    // Promotion
+                    checkAndAskPawnPromotion(board.getLastMovedPiece());
+                    updateView();
+                    playerTurn = opponent(playerTurn);
+
+                    isValid = true;
+                }
+                else
+                {
+                    board.undo();
+                }
+            }
         }
 
-        if(checkedPlayer == playerTurn) //Fonction d'inverse de couleur ?
-        {
-            view.displayMessage("Check! " + checkedPlayer);
+        checkGameStatus();
+        return isValid;
+    }
 
+    void checkGameStatus()
+    {
+        if(checkedPlayer != playerTurn)
+        {
+            //Est-ce que l'adversaire est en échec
+            if(isCheck(board, playerTurn))
+            {
+                checkedPlayer = playerTurn;
+            }
+            else
+            {
+                checkedPlayer = null;
+            }
+
+            canPlayerMove = canPlayerPlay();
         }
 
-        // Modèle temporaire du board sur lequel tester les déplacements
-        Board tmp = board.clone();
-        Piece p = tmp.getPiece(fromX, fromY);
-
-        if (p == null || p.color != playerTurn)
+        if(checkedPlayer != null)
         {
-            return false;
-        }
-
-        Movement movement = p.canMove(tmp, toX, toY);
-
-        // Si auncun mouvement possible, return pour ne pas reprint
-        // un board identique.
-        if(movement == null) return false;
-
-        if(! applyMovement(tmp, movement)) return false;
-
-
-        if (isCheck(tmp, playerTurn)) return false;
-
-        board = tmp;
-
-        // Promotion
-        checkAndAskPawnPromotion(board.getLastMovedPiece());
-        updateView();
-
-        // Echec - mat pat et tutti quanti
-        if(isCheck(board, opponent(playerTurn)))
-        {
-            checkedPlayer = opponent(playerTurn);
-            view.displayMessage("Check! " + checkedPlayer);
+            if(canPlayerMove)
+                view.displayMessage("Check " + checkedPlayer);
+            else
+                view.displayMessage("Checkmate " + checkedPlayer);
         }
         else
         {
-            checkedPlayer = null;
-            view.displayMessage("");
+            if(!canPlayerMove) view.displayMessage("Pat, game over!");
         }
-
-        ArrayList<Piece> pieces = board.getPieces(opponent(playerTurn));
-        checkedMatedPlayer = opponent(playerTurn);
-        for(Piece p1 : pieces)
-        {
-            for(Movement m : p1.possibleMovements(board))
-            {
-               Board tmp2 = board.clone();
-               applyMovement(tmp2, m);
-
-                if (!isCheck(tmp2,opponent(playerTurn)))
-                {
-                    checkedMatedPlayer = null;
-                    break;
-                }
-            }
-            if(checkedMatedPlayer == null) break;
-        }
-        if(checkedMatedPlayer != null && checkedPlayer != null) view.displayMessage("Check mate " + checkedMatedPlayer);
-        else if(checkedMatedPlayer != null && checkedPlayer == null) view.displayMessage("PAT " + checkedMatedPlayer);
-
-        // Changement de tour
-        playerTurn = opponent(playerTurn);
-
-        return true;
     }
 
     Boolean applyMovement(Board b, Movement m)
@@ -200,14 +181,21 @@ public class ChessGame implements chess.ChessController
         if(r.hasMoved || k.hasMoved || isCheck(b, playerTurn)) return false;
 
         // On test les deux cases sur lequels le roi va se déplacer
+        ArrayList<Piece> pieces = b.getPieces(opponent(playerTurn));
         for(int i = 0; i < 2; ++i)
         {
-            b.movePiece(k.getX(), k.getY(), k.getX()+1*direction, k.getY());
-            if(isCheck(b, playerTurn)) return false;
+            for(Piece p : pieces)
+            {
+                if(p.canMove(b, k.getX()+i*direction, k.getY()) != null)
+                {
+                    return false;
+                }
+            }
         }
 
-        k.setMoved();
+        b.movePiece(k.getX(), k.getY(), cm.getToX(), cm.getToY());
         b.movePiece(r.getX(), r.getY(), k.getX() - direction, k.getY());
+        
         return true;
     }
 
@@ -230,6 +218,26 @@ public class ChessGame implements chess.ChessController
         return false;
     }
 
+    private boolean canPlayerPlay()
+    {
+        for(Piece p : board.getPieces(playerTurn))
+        {
+            for (Movement m : p.possibleMovements(board))
+            {
+                if(applyMovement(board, m))
+                {
+                    if(!isCheck(board, playerTurn))
+                    {
+                        board.undo();
+                        return true;
+                    }
+                }
+                board.undo();
+            }
+        }
+        return false;
+    }
+
     /**
      * Verifie si la dernière pièce bougée peut être promue.
      * @param lastMovedPiece Dernière pièce déplacée.
@@ -242,11 +250,16 @@ public class ChessGame implements chess.ChessController
 
         int x = lastMovedPiece.getX(), y = lastMovedPiece.getY();
         PlayerColor c = lastMovedPiece.getColor();
-        Piece p = view.askUser("Pawn promoted", "What upgrade do you chose ?",
-                                new Queen(c,x,y) ,
-                                new Rook(c,x,y)  ,
-                                new Bishop(c,x,y),
-                                new Knight(c,x,y));
+
+        Piece p = null;
+        while(p == null)
+        {
+            p = view.askUser("Pawn promoted", "What upgrade do you chose ?",
+                    new Queen(c,x,y) ,
+                    new Rook(c,x,y)  ,
+                    new Bishop(c,x,y),
+                    new Knight(c,x,y));
+        }
 
         board.setPiece(x,y,p);
     }

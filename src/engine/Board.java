@@ -18,6 +18,7 @@ class Board implements Cloneable
     private final int SIZE = 8;
 
     private Piece lastMovedPiece;
+    private Undo undo;
 
     /**
      * Constructeur
@@ -57,10 +58,15 @@ class Board implements Cloneable
         //Si la pièce est nulle, sans effet.
         if(p == null) return;
 
+        undo = new Undo(p.clone(), toX, toY, getPiece(toX, toY));
+
         board[toY][toX] = p;
         p.setX(toX);
         p.setY(toY);
         lastMovedPiece = p;
+
+        if(p instanceof PieceSpecialFirstMove)
+            ((PieceSpecialFirstMove) p).setMoved();
 
         killPiece(fromX, fromY);
     }
@@ -107,11 +113,11 @@ class Board implements Cloneable
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
-        createFrontLine(PlayerColor.BLACK, 6);
+        //createFrontLine(PlayerColor.BLACK, 6);
 
 
         // Les blancs en bas
-        createFrontLine(PlayerColor.WHITE, 1);
+        //createFrontLine(PlayerColor.WHITE, 1);
         createBackLine(PlayerColor.WHITE, 0);
     }
 
@@ -250,4 +256,28 @@ class Board implements Cloneable
         board[noLine][7] = new Rook(color, 7, noLine);
     }
 
+    void undo()
+    {
+        lastMovedPiece = undo.moved;
+        board[undo.moved.getY()][undo.moved.getX()] = undo.moved;
+        board[undo.toY][undo.toX] = null;
+        if(undo.killed != null)
+            board[undo.killed.getY()][undo.killed.getX()] = undo.killed;
+    }
+
+    private class Undo
+    {
+        Piece moved;
+        int toX;
+        int toY;
+        Piece killed;
+
+        Undo(Piece moved, int toX, int toY, Piece killed)
+        {
+            this.moved = moved.clone();
+            this.toX = toX;
+            this.toY = toY;
+            this.killed = killed;
+        }
+    }
 }
