@@ -2,6 +2,9 @@ package engine;
 
 import chess.PieceType;
 import chess.PlayerColor;
+import engine.pieces.*;
+import engine.rules.*;
+
 import java.util.ArrayList;
 
 /**
@@ -10,7 +13,7 @@ import java.util.ArrayList;
  * @author Forestier Quentin, Herzig Melvyn
  * @version 12.12.2020
  */
-class Board implements Cloneable
+public class Board
 {
     // Références sur les différentes pièces en fonctions des cases du board.
     private Piece[][] board;
@@ -18,12 +21,11 @@ class Board implements Cloneable
     private final int SIZE = 8;
 
     private Piece lastMovedPiece;
-    private Undo undo;
 
     /**
      * Constructeur
      */
-    Board()
+    public Board()
     {
         reset();
     }
@@ -33,9 +35,9 @@ class Board implements Cloneable
      * @param y Position y.
      * @return Retourne une référence sur la pièce en position x y.
      */
-    Piece getPiece(int x, int y)
+    public Piece getPiece(int x, int y)
     {
-        if(!isValidPosition(x, y)) throw new IllegalArgumentException("Positions inconnues");
+        if(!isValidPosition(x, y)) return null;
 
         return board[y][x];
     }
@@ -48,34 +50,39 @@ class Board implements Cloneable
      * @param toX position x de destination.
      * @param toY position y de destination.
      */
-    void movePiece(int fromX, int fromY, int toX, int toY)
+    public void movePiece(int fromX, int fromY, int toX, int toY)
     {
-        if(!isValidPosition(fromX,fromY)) throw new IllegalArgumentException("Positions from inconnues");
-        if(!isValidPosition(toX  ,toY  )) throw new IllegalArgumentException("Positions to inconnues");
+        if(!isValidPosition(fromX,fromY) || !isValidPosition(toX  ,toY  )) return;
+
 
         Piece p = getPiece(fromX, fromY);
 
         //Si la pièce est nulle, sans effet.
         if(p == null) return;
 
-        undo = new Undo(p.clone(), toX, toY, getPiece(toX, toY));
-
         board[toY][toX] = p;
         p.setX(toX);
         p.setY(toY);
-        lastMovedPiece = p;
-
-        if(p instanceof PieceSpecialFirstMove)
-            ((PieceSpecialFirstMove) p).setMoved();
 
         killPiece(fromX, fromY);
+    }
+
+    /**
+     * Supprime une pièce du plateau.
+     * @param x Position x.
+     * @param y Position y.
+     */
+    public void killPiece(int x, int y)
+    {
+        if(!isValidPosition(x,y)) return;
+        board[y][x] = null;
     }
 
     /**
      * @param piecesColor Couleur du joueur qui joue.
      * @return Retourne les pièces opposées à currentPlayer
      */
-    ArrayList<Piece> getPieces(PlayerColor piecesColor)
+    public ArrayList<Piece> getPieces(PlayerColor piecesColor)
     {
         ArrayList<Piece> pieces = new ArrayList<Piece>();
         for(int y = 0; y < getSize(); ++y)
@@ -91,13 +98,13 @@ class Board implements Cloneable
      * @param kingColor Couleur du roi recherché.
      * @return Retourne une référence sur le roi.
      */
-    King getKing(PlayerColor kingColor)
+    public King getKing(PlayerColor kingColor)
     {
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
                 Piece p;
-                if(isAllySpot(kingColor,x,y) && (p = getPiece(x,y)).type == PieceType.KING)
+                if(isAllySpot(kingColor,x,y) && (p = getPiece(x,y)).getType() == PieceType.KING)
                     return (King) p;
             }
 
@@ -107,64 +114,28 @@ class Board implements Cloneable
     /**
      * Réinitialise l'échiquier dans sa position de départ.
      */
-    void reset()
+    public void reset()
     {
         board = new Piece[SIZE][SIZE];
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
-        //createFrontLine(PlayerColor.BLACK, 6);
+        createFrontLine(PlayerColor.BLACK, 6);
 
 
         // Les blancs en bas
-        //createFrontLine(PlayerColor.WHITE, 1);
+        createFrontLine(PlayerColor.WHITE, 1);
         createBackLine(PlayerColor.WHITE, 0);
     }
 
     /**
      * @return Retourne la largeur/hauteur de l'échiquier.
      */
-    int getSize()
+    public int getSize()
     {
         return SIZE;
     }
 
-    /**
-     * Supprime une pièce du plateau.
-     * @param x Position x.
-     * @param y Position y.
-     */
-    void killPiece(int x, int y)
-    {
-        board[y][x] = null;
-    }
-
-    /**
-     * Crée une copie pronfonde de l'échiquier.
-     * @return Retourne la copie.
-     */
-    public Board clone()
-    {
-        Board b = null;
-        try
-        {
-            b = (Board) super.clone();
-            b.board = new Piece[SIZE][SIZE];
-            for (int y = 0; y < SIZE; ++y)
-            {
-                for (int x = 0; x < SIZE; ++x)
-                {
-                    b.board[y][x] = board[y][x] == null ? null : board[y][x].clone();
-                }
-            }
-        }
-        catch (CloneNotSupportedException e)
-        {
-            e.printStackTrace();
-        }
-
-        return b;
-    }
 
     /**
      * Vérifie si la case en position x et y est occupée.
@@ -172,9 +143,9 @@ class Board implements Cloneable
      * @param y Position y.
      * @return Vrai si la case est libre sinon faux.
      */
-    boolean isFreeSpot(int x, int y)
+    public boolean isFreeSpot(int x, int y)
     {
-        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position inconnue");
+        if(!isValidPosition(x,y)) return false;
         return getPiece(x, y) == null;
     }
 
@@ -184,12 +155,12 @@ class Board implements Cloneable
      * @param color Couleur à vérifier l'appartenance.
      * @param x Position x.
      * @param y Position y,
-     * @return Retourne vrai si la case est occupée par un allié de color.
+     * @return Retourne vrai si la case est occupée par un allié de couleur color.
      */
-    boolean isAllySpot(PlayerColor color, int x, int y)
+    public boolean isAllySpot(PlayerColor color, int x, int y)
     {
-        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position inconnue");
-        return !isFreeSpot(x, y) && getPiece(x, y).color == color;
+        if(!isValidPosition(x,y)) return false;
+        return !isFreeSpot(x, y) && getPiece(x, y).getColor() == color;
     }
 
     /**
@@ -198,18 +169,9 @@ class Board implements Cloneable
      * @param y Position y.
      * @return Vrai si la position est sur le plateau sinon faux.
      */
-    boolean isValidPosition(int x, int y)
+    public boolean isValidPosition(int x, int y)
     {
         return x >= 0 && y >= 0 && x < getSize() && y < getSize();
-    }
-
-    /**
-     * Retourne la dernière pièce déplacée.
-     * @return Retourne la dernière pièce déplacée.
-     */
-    Piece getLastMovedPiece()
-    {
-        return lastMovedPiece;
     }
 
     /**
@@ -218,9 +180,9 @@ class Board implements Cloneable
      * @param y Position y
      * @param p Nouvelle pièce
      */
-    void setPiece(int x, int y, Piece p)
+    public void setPiece(int x, int y, Piece p)
     {
-        if(!isValidPosition(x,y)) throw new IllegalArgumentException("Position invalide");
+        if(!isValidPosition(x,y)) return;
 
         board[y][x] = p;
     }
@@ -234,7 +196,7 @@ class Board implements Cloneable
     {
         int promotionOnLine = color == PlayerColor.WHITE ? getSize()-1 : 0;
         for (int i = 0; i < SIZE; i++)
-            board[noLine][i] = new Pawn(color, i, noLine, promotionOnLine);
+            board[noLine][i] = new Pawn(color, i, noLine, promotionOnLine, this);
     }
 
     /**
@@ -245,39 +207,24 @@ class Board implements Cloneable
      */
     private void createBackLine(PlayerColor color, int noLine)
     {
-        board[noLine][0] = new Rook(color, 0, noLine);
-        board[noLine][1] = new Knight(color, 1, noLine);
-        board[noLine][2] = new Bishop(color, 2, noLine);
-        board[noLine][3] = new Queen(color, 3, noLine);
-        board[noLine][4] = new King(color, 4, noLine);
+        board[noLine][0] = new Rook(color, 0, noLine, this);
+        board[noLine][1] = new Knight(color, 1, noLine, this);
+        board[noLine][2] = new Bishop(color, 2, noLine, this);
+        board[noLine][3] = new Queen(color, 3, noLine, this);
+        board[noLine][4] = new King(color, 4, noLine, this);
 
-        board[noLine][5] = new Bishop(color, 5, noLine);
-        board[noLine][6] = new Knight(color, 6, noLine);
-        board[noLine][7] = new Rook(color, 7, noLine);
+        board[noLine][5] = new Bishop(color, 5, noLine, this);
+        board[noLine][6] = new Knight(color, 6, noLine, this);
+        board[noLine][7] = new Rook(color, 7, noLine, this);
     }
 
-    void undo()
+    public void setLastMovedPiece(Piece piece)
     {
-        lastMovedPiece = undo.moved;
-        board[undo.moved.getY()][undo.moved.getX()] = undo.moved;
-        board[undo.toY][undo.toX] = null;
-        if(undo.killed != null)
-            board[undo.killed.getY()][undo.killed.getX()] = undo.killed;
+        lastMovedPiece = piece;
     }
 
-    private class Undo
+    public Piece getLastMovedPiece()
     {
-        Piece moved;
-        int toX;
-        int toY;
-        Piece killed;
-
-        Undo(Piece moved, int toX, int toY, Piece killed)
-        {
-            this.moved = moved.clone();
-            this.toX = toX;
-            this.toY = toY;
-            this.killed = killed;
-        }
+        return lastMovedPiece;
     }
 }

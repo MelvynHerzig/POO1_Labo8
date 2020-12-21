@@ -1,6 +1,8 @@
 package engine;
 
 import chess.*;
+import engine.movements.*;
+import engine.pieces.*;
 
 import java.util.ArrayList;
 
@@ -42,15 +44,17 @@ public class ChessGame implements chess.ChessController
         boolean isValid = false;
         Piece p = board.getPiece(fromX, fromY);
 
-        if (p != null &&  p.color == playerTurn)
+        if (p != null &&  p.getColor() == playerTurn)
         {
-            Movement movement = p.canMove(board, toX, toY);
+            Movement movement = p.canMove(toX, toY);
 
             // Si auncun mouvement possible, return pour ne pas reprint
             // un board identique.
-            if(movement != null && applyMovement(board, movement))
+            if(movement != null && isRespectingBeforeApplicationRules(movement))
             {
-                if (!isCheck(board, playerTurn))
+                movement.apply();
+
+                if (!isCheck(playerTurn))
                 {
                     // Promotion
                     checkAndAskPawnPromotion(board.getLastMovedPiece());
@@ -61,7 +65,7 @@ public class ChessGame implements chess.ChessController
                 }
                 else
                 {
-                    board.undo();
+                    movement.undo();
                 }
             }
         }
@@ -75,7 +79,7 @@ public class ChessGame implements chess.ChessController
         if(checkedPlayer != playerTurn)
         {
             //Est-ce que l'adversaire est en échec
-            if(isCheck(board, playerTurn))
+            if(isCheck( playerTurn))
             {
                 checkedPlayer = playerTurn;
             }
@@ -100,21 +104,32 @@ public class ChessGame implements chess.ChessController
         }
     }
 
-    Boolean applyMovement(Board b, Movement m)
+    boolean isRespectingBeforeApplicationRules(Movement m)
     {
-        if(m.getClass() == PawnMovement.class)
+        if(m instanceof CastlingMovement)
         {
-            if(!applyPawnMovement(b, (PawnMovement)m)) return false;
-        }
-        else if(m.getClass() == CastlingMovement.class)
-        {
-            if(!applyCastling(b, (CastlingMovement)m)) return false;
-        }
-        else
-        {
-            b.movePiece(m.getFromX(), m.getFromY(), m.getToX(), m.getToY());
+            // Vérifier que le roi n'est pas en échec sur les cases nécessaires au déplacement
+            CastlingMovement cm = (CastlingMovement) m;
+            King k = (King)cm.getToMove();
+            Rook r = (Rook)cm.getRook();
+
+            int direction = k.getX() < r.getX() ? 1 : -1;
+
+            ArrayList<Piece> pieces = board.getPieces(opponent(playerTurn));
+            for(int i = 0; i <= 2; ++i)
+            {
+                for(Piece p : pieces)
+                {
+                    if(p.canMove( k.getX()+i*direction, k.getY()) != null)
+                    {
+                        view.displayMessage("Roi en échec durant le roque");
+                        return false;
+                    }
+                }
+            }
         }
 
+        //Sinon le mouvement n'a pas de prérequis
         return true;
     }
 
@@ -124,95 +139,26 @@ public class ChessGame implements chess.ChessController
      */
     public void newGame()
     {
-        playerTurn = PlayerColor.WHITE;
-        resetGame();
-    }
-
-    /**
-     * Réinitialisation de la partie
-     */
-    public void resetGame()
-    {
         board.reset();
+        playerTurn = PlayerColor.WHITE;
+        checkedPlayer = null;
+        canPlayerMove = true;
         updateView();
-    }
-
-
-    private boolean applyPawnMovement(Board b, PawnMovement pm)
-    {
-        Pawn movedPawn = (Pawn)b.getPiece(pm.getFromX(), pm.getFromY());
-        Pawn enPassantPawn = null;
-        if(b.isValidPosition(pm.getToKillX(), pm.getToKillY()))
-            enPassantPawn = (Pawn)b.getPiece(pm.getToKillX(), pm.getToKillY());
-        int noLinePassant = (playerTurn == PlayerColor.BLACK) ? 3 : 4;
-
-        // Déplacement de 2 cases impossible si déjà déplacée.
-        if(Math.abs(pm.getToY() - movedPawn.getY()) == 2)
-        {
-            if(movedPawn.hasMoved()) return false;
-            movedPawn.setMoved2();
-        }
-
-        // Vérification en passant
-        if(pm.getToX() != movedPawn.getX())
-        {
-            if(b.isValidPosition(pm.getToKillX(), pm.getToKillY()) && enPassantPawn.equal(b.getLastMovedPiece()) && movedPawn.getY() == noLinePassant && enPassantPawn.getMoved2())
-            {
-                b.killPiece(enPassantPawn.getX(), enPassantPawn.getY());
-            }
-            else if( b.isFreeSpot(pm.getToX(), pm.getToY()) || b.isAllySpot(movedPawn.getColor(), pm.getToX(), pm.getToY()))
-            {
-                return false;
-            }
-        }
-
-        b.movePiece(pm.getFromX(), pm.getFromY(),pm.getToX(), pm.getToY());
-        movedPawn.setMoved();
-
-        return true;
-    }
-
-    private boolean applyCastling(Board b, CastlingMovement cm)
-    {
-        Rook r = (Rook) b.getPiece(cm.getrX(), cm.getrY());
-        King k = (King) b.getPiece(cm.getFromX(), cm.getFromY());
-        int direction = r.getX() > k.getX() ? 1 : -1;
-
-        if(r.hasMoved || k.hasMoved || isCheck(b, playerTurn)) return false;
-
-        // On test les deux cases sur lequels le roi va se déplacer
-        ArrayList<Piece> pieces = b.getPieces(opponent(playerTurn));
-        for(int i = 0; i < 2; ++i)
-        {
-            for(Piece p : pieces)
-            {
-                if(p.canMove(b, k.getX()+i*direction, k.getY()) != null)
-                {
-                    return false;
-                }
-            }
-        }
-
-        b.movePiece(k.getX(), k.getY(), cm.getToX(), cm.getToY());
-        b.movePiece(r.getX(), r.getY(), k.getX() - direction, k.getY());
-        
-        return true;
     }
 
     /**
      * Vérifie si la couleur du joueur playerColor est en échec sur le board b.
-     * @param b Board sur lequel vérifier.
      * @param playerColor joueur à vérifier la mise en échec.
      * @return Vrai si le joueur est en échec.
      */
-    private boolean isCheck(Board b, PlayerColor playerColor)
+    private boolean isCheck(PlayerColor playerColor)
     {
-        ArrayList<Piece> enemies = b.getPieces(opponent(playerColor));
-        King k = b.getKing(playerColor);
+        ArrayList<Piece> enemies = board.getPieces(opponent(playerColor));
+        King k = board.getKing(playerColor);
 
         for(Piece p: enemies)
         {
-            if(p.canMove(b, k.getX(), k.getY()) != null) return true;
+            if(p.canMove( k.getX(), k.getY()) != null) return true;
         }
 
         return false;
@@ -222,17 +168,17 @@ public class ChessGame implements chess.ChessController
     {
         for(Piece p : board.getPieces(playerTurn))
         {
-            for (Movement m : p.possibleMovements(board))
+            for (Movement m : p.possibleMovements())
             {
-                if(applyMovement(board, m))
+                m.apply();
+
+                if(!isCheck(playerTurn))
                 {
-                    if(!isCheck(board, playerTurn))
-                    {
-                        board.undo();
-                        return true;
-                    }
+                    m.undo();
+                    return true;
                 }
-                board.undo();
+
+               m.undo();
             }
         }
         return false;
@@ -255,10 +201,10 @@ public class ChessGame implements chess.ChessController
         while(p == null)
         {
             p = view.askUser("Pawn promoted", "What upgrade do you chose ?",
-                    new Queen(c,x,y) ,
-                    new Rook(c,x,y)  ,
-                    new Bishop(c,x,y),
-                    new Knight(c,x,y));
+                    new Queen(c,x,y, board) ,
+                    new Rook(c,x,y, board)  ,
+                    new Bishop(c,x,y, board),
+                    new Knight(c,x,y, board));
         }
 
         board.setPiece(x,y,p);
@@ -293,7 +239,7 @@ public class ChessGame implements chess.ChessController
                 }
                 else
                 {
-                    view.putPiece(p.type, p.color, x,y);
+                    view.putPiece(p.getType(), p.getColor(), x,y);
                 }
             }
         }
