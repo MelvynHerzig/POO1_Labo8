@@ -1,7 +1,7 @@
 package engine.movements;
 
+import chess.ChessView;
 import engine.Board;
-import engine.movements.Movement;
 import engine.pieces.Piece;
 import engine.pieces.Rook;
 
@@ -50,5 +50,13 @@ public class CastlingMovement extends Movement
       board.setPiece(rookCopy.getX(), rookCopy.getY(), rook);
 
       rook.copyState(rookCopy);
+   }
+
+   @Override
+   public void updateView(ChessView view)
+   {
+      super.updateView(view);
+      view.putPiece(rook.getType(), rook.getColor(), rook.getX(), rook.getY());
+      view.removePiece(rookCopy.getX(), rookCopy.getY());
    }
 }

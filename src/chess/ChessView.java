@@ -33,6 +33,9 @@ public interface ChessView {
   void displayMessage(String msg);
 
   /**
+   void putPiece(PieceType type, int x, int y);
+
+   /**
    * A utiliser pour demander un choix à l'utilisateur. La vue utilisera le texte fourni par la méthode
    * pour représenter la valeur du choix proposé.
    */

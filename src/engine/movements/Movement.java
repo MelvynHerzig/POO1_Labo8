@@ -1,5 +1,6 @@
 package engine.movements;
 
+import chess.ChessView;
 import engine.Board;
 import engine.pieces.Pawn;
 import engine.pieces.Piece;
@@ -83,6 +84,15 @@ public class Movement
         board.setLastMovedPiece(lastMovedPieceSave);
 
         toMove.copyState(toMoveCopy);
+    }
+
+    public void updateView(ChessView view)
+    {
+        // On interroge le board sur la pièce qui se trouve en toX toY
+        // au cas où une promotion est survenue.
+        Piece p = board.getPiece(toMove.getX(), toMove.getY());
+        view.putPiece(p.getType(), p.getColor(), toMove.getX(), toMove.getY());
+        view.removePiece(toMoveCopy.getX(), toMoveCopy.getY());
     }
 
 }

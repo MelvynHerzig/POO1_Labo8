@@ -58,9 +58,9 @@ public class ChessGame implements chess.ChessController
                 {
                     // Promotion
                     checkAndAskPawnPromotion(board.getLastMovedPiece());
-                    updateView();
-                    playerTurn = opponent(playerTurn);
 
+                    playerTurn = opponent(playerTurn);
+                    movement.updateView(view);
                     isValid = true;
                 }
                 else
@@ -122,7 +122,6 @@ public class ChessGame implements chess.ChessController
                 {
                     if(p.canMove( k.getX()+i*direction, k.getY()) != null)
                     {
-                        view.displayMessage("Roi en échec durant le roque");
                         return false;
                     }
                 }
@@ -170,15 +169,18 @@ public class ChessGame implements chess.ChessController
         {
             for (Movement m : p.possibleMovements())
             {
-                m.apply();
-
-                if(!isCheck(playerTurn))
+                if(isRespectingBeforeApplicationRules(m))
                 {
-                    m.undo();
-                    return true;
-                }
+                    m.apply();
 
-               m.undo();
+                    if(!isCheck(playerTurn))
+                    {
+                        m.undo();
+                        return true;
+                    }
+
+                    m.undo();
+                }
             }
         }
         return false;
@@ -222,9 +224,7 @@ public class ChessGame implements chess.ChessController
     }
 
     /**
-     * Met à jour la vue.
-     * Optimisation possible: détecter les changements entre le modèle
-     * actuel et précédent pour mettre à jour les différences uniquement.
+     * Réinitialise la vue.
      */
     private void updateView()
     {

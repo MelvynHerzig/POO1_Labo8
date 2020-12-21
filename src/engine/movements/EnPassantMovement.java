@@ -1,5 +1,6 @@
 package engine.movements;
 
+import chess.ChessView;
 import engine.Board;
 import engine.movements.Movement;
 import engine.pieces.Pawn;
@@ -39,4 +40,12 @@ public class EnPassantMovement extends Movement
       super.undo();
       board.setPiece(toKill.getX(), toKill.getY(), toKill);
    }
+
+   @Override
+   public void updateView(ChessView view)
+   {
+      super.updateView(view);
+      view.removePiece(toKill.getX(), toKill.getY());
+   }
+
 }
