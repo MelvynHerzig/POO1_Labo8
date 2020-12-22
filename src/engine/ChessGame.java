@@ -118,7 +118,7 @@ public class ChessGame implements chess.ChessController
       }
       else
       {
-         if (!canPlayerMove) view.displayMessage("Pat, game over!");
+         if (!canPlayerMove) view.displayMessage("Pat!");
       }
    }
 
@@ -199,6 +199,7 @@ public class ChessGame implements chess.ChessController
             }
          }
       }
+
       return false;
    }
 

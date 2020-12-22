@@ -49,7 +49,8 @@ public class CastlingRule extends Rule
       boolean castlingPossible = true;
       if(board.isValidPosition(x-4, y) && board.isAllySpot(piece.getColor(),x-4, y))
       {
-         if(board.getPiece(x-4,y).getClass() == Rook.class)
+         Piece p = board.getPiece(x-4, y);
+         if(p != null && p.getClass() == Rook.class && !((PieceSpecialFirstMove)p).hasMoved())
          {
             for (int offsetX = 1; offsetX < 4; ++offsetX)
             {
@@ -68,7 +69,8 @@ public class CastlingRule extends Rule
       // Petit Roques
       if(board.isValidPosition(x+3, y) && board.isAllySpot(piece.getColor(),x+3, y))
       {
-         if (board.getPiece(x+3, y).getClass() == Rook.class)
+         Piece p = board.getPiece(x+3, y);
+         if (p != null && p.getClass() == Rook.class && !((PieceSpecialFirstMove)p).hasMoved())
          {
             for (int offsetX = 1; offsetX < 3; ++offsetX)
             {
