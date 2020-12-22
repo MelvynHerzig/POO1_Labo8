@@ -6,15 +6,11 @@ import engine.pieces.Piece;
 import java.util.LinkedList;
 
 
-public class LinearRule extends Rule
+public class LinearRule extends LimitableRule
 {
-   private boolean limitToOne;
-
    public LinearRule(Board board, Piece piece, boolean limitToOne)
    {
-      super(board, piece);
-
-      this.limitToOne = limitToOne;
+      super(board, piece, limitToOne);
    }
 
    public LinkedList<Movement> possibleMovements()

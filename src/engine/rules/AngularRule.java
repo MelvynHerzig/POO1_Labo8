@@ -11,10 +11,8 @@ import java.util.LinkedList;
  * @author Forestier Quentin, Herzig Melvyn
  * @version 22.12.2020
  */
-public class AngularRule extends Rule
+public class AngularRule extends LimitableRule
 {
-   private boolean limitToOne;
-
    /**
     * Constructeur
     * @param board Echiquier sur lequel appliquer la règle.
@@ -23,9 +21,7 @@ public class AngularRule extends Rule
     */
    public AngularRule(Board board, Piece piece, boolean limitToOne)
    {
-      super(board, piece);
-
-      this.limitToOne = limitToOne;
+      super(board, piece, limitToOne);
    }
 
    /**
