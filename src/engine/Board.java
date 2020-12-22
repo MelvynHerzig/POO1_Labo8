@@ -5,7 +5,7 @@ import chess.PlayerColor;
 import engine.pieces.*;
 import engine.rules.*;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Classe modélisant le board d'une partie d'échec.
@@ -82,9 +82,9 @@ public class Board
      * @param piecesColor Couleur du joueur qui joue.
      * @return Retourne les pièces opposées à currentPlayer
      */
-    public ArrayList<Piece> getPieces(PlayerColor piecesColor)
+    public LinkedList<Piece> getPieces(PlayerColor piecesColor)
     {
-        ArrayList<Piece> pieces = new ArrayList<Piece>();
+        LinkedList<Piece> pieces = new LinkedList<Piece>();
         for(int y = 0; y < getSize(); ++y)
             for(int x = 0; x < getSize(); ++x)
             {
