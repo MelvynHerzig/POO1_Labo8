@@ -3,15 +3,14 @@ package engine;
 import chess.PieceType;
 import chess.PlayerColor;
 import engine.pieces.*;
-import engine.rules.*;
 
 import java.util.LinkedList;
 
 /**
- * Classe modélisant le board d'une partie d'échec.
+ * Classe modélisant un échiquier.
  *
  * @author Forestier Quentin, Herzig Melvyn
- * @version 12.12.2020
+ * @version 22.12.2020
  */
 public class Board
 {
@@ -31,20 +30,8 @@ public class Board
     }
 
     /**
-     * @param x Position x.
-     * @param y Position y.
-     * @return Retourne une référence sur la pièce en position x y.
-     */
-    public Piece getPiece(int x, int y)
-    {
-        if(!isValidPosition(x, y)) return null;
-
-        return board[y][x];
-    }
-
-    /**
      * Déplace une pièce sur l'échiquier.
-     * Si la source est nulle, la fonction est sans effet.
+     * Si les positions ne sont pas valides, la fonction est sans effet.
      * @param fromX position x initiale.
      * @param fromY position y initiale.
      * @param toX position x de destination.
@@ -53,7 +40,6 @@ public class Board
     public void movePiece(int fromX, int fromY, int toX, int toY)
     {
         if(!isValidPosition(fromX,fromY) || !isValidPosition(toX  ,toY  )) return;
-
 
         Piece p = getPiece(fromX, fromY);
 
@@ -68,7 +54,34 @@ public class Board
     }
 
     /**
+     * Retourne la pièce sur le plateau à la position x et y.
+     * @param x Position x.
+     * @param y Position y.
+     * @return Retourne une référence sur la pièce en position x y.
+     */
+    public Piece getPiece(int x, int y)
+    {
+        if(!isValidPosition(x, y)) return null;
+
+        return board[y][x];
+    }
+
+    /**
+     * Ajoute une pièce p à la position x y.
+     * @param x Position x.
+     * @param y Position y
+     * @param p Nouvelle pièce
+     */
+    public void setPiece(int x, int y, Piece p)
+    {
+        if(!isValidPosition(x,y)) return;
+
+        board[y][x] = p;
+    }
+
+    /**
      * Supprime une pièce du plateau.
+     * Si les positions ne sont pas valides, la fonction est sans effet.
      * @param x Position x.
      * @param y Position y.
      */
@@ -79,34 +92,40 @@ public class Board
     }
 
     /**
-     * @param piecesColor Couleur du joueur qui joue.
+     * Recherche les pièces d'une couleur données
+     * @param piecesColor Couleur du joueur a récupérer les pièces
      * @return Retourne les pièces opposées à currentPlayer
      */
     public LinkedList<Piece> getPieces(PlayerColor piecesColor)
     {
         LinkedList<Piece> pieces = new LinkedList<Piece>();
         for(int y = 0; y < getSize(); ++y)
+        {
             for(int x = 0; x < getSize(); ++x)
             {
                 if(!isFreeSpot(x,y) && isAllySpot(piecesColor,x ,y)) pieces.add(getPiece(x,y));
             }
+        }
+
         return pieces;
     }
 
     /**
-     *
+     * Retourne le roi d'une couleur donnée.
      * @param kingColor Couleur du roi recherché.
      * @return Retourne une référence sur le roi.
      */
     public King getKing(PlayerColor kingColor)
     {
         for(int y = 0; y < getSize(); ++y)
+        {
             for(int x = 0; x < getSize(); ++x)
             {
                 Piece p;
                 if(isAllySpot(kingColor,x,y) && (p = getPiece(x,y)).getType() == PieceType.KING)
                     return (King) p;
             }
+        }
 
         return null;
     }
@@ -129,6 +148,7 @@ public class Board
     }
 
     /**
+     * Donne les dimensions de l'échiquier.
      * @return Retourne la largeur/hauteur de l'échiquier.
      */
     public int getSize()
@@ -174,18 +194,6 @@ public class Board
         return x >= 0 && y >= 0 && x < getSize() && y < getSize();
     }
 
-    /**
-     * Remplece une pièce à la position X Y par une nouvelle pièce p.
-     * @param x Position x.
-     * @param y Position y
-     * @param p Nouvelle pièce
-     */
-    public void setPiece(int x, int y, Piece p)
-    {
-        if(!isValidPosition(x,y)) return;
-
-        board[y][x] = p;
-    }
 
     /**
      * Crée les pions d'une couleur sur la ligne donnée.
@@ -218,11 +226,19 @@ public class Board
         board[noLine][7] = new Rook(color, 7, noLine, this);
     }
 
+    /**
+     * Fixe la valeur de la dernière pièce déplacée.
+     * @param piece Pièce étant la dernière pièce déplacée.
+     */
     public void setLastMovedPiece(Piece piece)
     {
         lastMovedPiece = piece;
     }
 
+    /**
+     * Retourne la dernière pièce déplacée.
+     * @return Retourne la dernière pièce déplacée.
+     */
     public Piece getLastMovedPiece()
     {
         return lastMovedPiece;

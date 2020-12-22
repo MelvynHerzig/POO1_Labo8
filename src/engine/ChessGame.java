@@ -36,6 +36,19 @@ public class ChessGame implements chess.ChessController
    }
 
    /**
+    * Démarre une nouvelle partie.
+    */
+   @Override
+   public void newGame()
+   {
+      playerTurn = PlayerColor.WHITE;
+      checkedPlayer = null;
+      canPlayerMove = true;
+      board.reset();
+      updateView();
+   }
+
+   /**
     * Vérifie si une pièce à la position fromX fromY peut aller en toX toY.
     * Si le déplacement est légal, return true et met à jour la vue, sinon
     * @param fromX Position x de départ.
@@ -84,7 +97,7 @@ public class ChessGame implements chess.ChessController
     * La fonction ne refait pas tous les calculs tant que le tour
     * n'a pas changé.
     */
-   void checkGameStatus()
+   private void checkGameStatus()
    {
       if (checkedPlayer != playerTurn)
       {
@@ -116,7 +129,7 @@ public class ChessGame implements chess.ChessController
     * @param m Mouvement à vérifier
     * @return Vrai si les conditions sont bonnes faux sinon.
     */
-   boolean isRespectingBeforeApplicationRules(Movement m)
+   private boolean isRespectingBeforeApplicationRules(Movement m)
    {
       if (m instanceof CastlingMovement)
       {
@@ -142,19 +155,6 @@ public class ChessGame implements chess.ChessController
 
       //Sinon le mouvement n'a pas de prérequis
       return true;
-   }
-
-   /**
-    * Démarre une nouvelle partie.
-    */
-   @Override
-   public void newGame()
-   {
-      playerTurn = PlayerColor.WHITE;
-      checkedPlayer = null;
-      canPlayerMove = true;
-      board.reset();
-      updateView();
    }
 
    /**
