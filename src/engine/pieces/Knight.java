@@ -9,15 +9,32 @@ import engine.rules.JumpingHorseRule;
 
 import java.util.LinkedList;
 
+/**
+ * Classe modélisant un cavalier.
+ *
+ * @author Forestier Quentin, Herzig Melvyn
+ * @version 22.12.2020
+ */
 public class Knight extends Piece implements ChessView.UserChoice
 {
-    public Knight(PlayerColor aColor, int x, int y, Board board)
+    /**
+     * Constructeur.
+     * @param color Couleur de la pièce.
+     * @param x Position x de la pièce.
+     * @param y Position y de la pièce.
+     * @param board Échiquier sur lequel elle se trouve.
+     */
+    public Knight(PlayerColor color, int x, int y, Board board)
     {
-        super(aColor, PieceType.KNIGHT, x, y, board);
+        super(color, PieceType.KNIGHT, x, y, board);
         rules = new LinkedList<Rule>();
         rules.add( new JumpingHorseRule(board, this));
     }
 
+    /**
+     * Indique le nom de la pièce. Appel à toString.
+     * @return Retourne le nom de l'objet.
+     */
     @Override
     public String textValue()
     {

@@ -11,18 +11,20 @@ import java.util.LinkedList;
 
 /**
  * Classe modélisant une tour.
- * Inclus deux fonctions "controller" qui permettent de
- * calculer les movements possibles.
+ *
+ * @author Forestier Quentin, Herzig Melvyn
+ * @version 22.12.2020
  */
 public class Rook extends PieceSpecialFirstMove implements ChessView.UserChoice
 {
 
-    /**
-     * Constructeur.
-     * @param color Couleur de la tour.
-     * @param x Position x.
-     * @param y Position y.
-     */
+   /**
+    * Constructeur.
+    * @param color Couleur de la pièce.
+    * @param x Position x de la pièce.
+    * @param y Position y de la pièce.
+    * @param board Échiquier sur lequel elle se trouve.
+    */
     public Rook(PlayerColor color, int x, int y, Board board)
     {
         super(color, PieceType.ROOK, x, y, board);
@@ -30,6 +32,10 @@ public class Rook extends PieceSpecialFirstMove implements ChessView.UserChoice
         rules.add(new LinearRule(board, this, false));
     }
 
+   /**
+    * Indique le nom de la pièce. Appel à toString.
+    * @return Retourne le nom de l'objet.
+    */
    @Override
    public String textValue()
    {

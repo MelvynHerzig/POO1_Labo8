@@ -21,7 +21,8 @@ public class CastlingRule extends Rule
 {
    /**
     * Constructeur
-    * @param board Echiquier sur lequel appliquer la règle.
+    * @param board Échiquier sur lequel la règle va s'appliquer.
+    * @param piece Pièce liée à la règle.
     */
    public CastlingRule(Board board, Piece piece)
    {
@@ -29,8 +30,9 @@ public class CastlingRule extends Rule
    }
 
    /**
-    * Calcule les mouvements possibles pour la pièce p.
-    * @return Retourne la liste des mouvements possibles.
+    * Pour la règle calcul les movements possibles de la pièce piece dans
+    * l'échiquier board.
+    * @return Retourne la liste des déplacements possibles.
     */
    public LinkedList<Movement> possibleMovements()
    {

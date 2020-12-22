@@ -6,7 +6,7 @@ import engine.pieces.Piece;
 import java.util.LinkedList;
 
 /**
- * Classe modélisant la règle des mouvements linéaires.
+ * Classe modélisant la régle des déplacements diagonaux.
  *
  * @author Forestier Quentin, Herzig Melvyn
  * @version 22.12.2020
@@ -14,10 +14,11 @@ import java.util.LinkedList;
 public class AngularRule extends LimitableRule
 {
    /**
-    * Constructeur
-    * @param board Echiquier sur lequel appliquer la règle.
-    * @param limitToOne La règle doit elle être limité à une case dans les
-    *                   différentes directions.
+    * Constructeur.
+    * @param board Échiquier sur lequel la règle va s'appliquer.
+    * @param piece Pièce liée à la règle.
+    * @param limitToOne Si vrai, le sondage dans les différentes directions
+    *                   est limité à 1 de distance.
     */
    public AngularRule(Board board, Piece piece, boolean limitToOne)
    {
@@ -25,8 +26,9 @@ public class AngularRule extends LimitableRule
    }
 
    /**
-    * Calcule les mouvements possibles pour la pièce p.
-    * @return Retourne la liste des mouvements possibles.
+    * Pour la règle calcul les movements possibles de la pièce piece dans
+    * l'échiquier board.
+    * @return Retourne la liste des déplacements possibles.
     */
    public LinkedList<Movement> possibleMovements()
    {

@@ -6,14 +6,12 @@ import engine.Board;
 import engine.movements.Movement;
 import engine.rules.Rule;
 import java.util.LinkedList;
-import java.util.Arrays;
-
 
 /**
- * Classe modélisant une pièce de base du jeu d'un jeu d'échec.
+ * Classe modélisant une pièce de base d'un jeu d'échec.
  *
  * @author Forestier Quentin, Herzig Melvyn
- * @version 13.12.2020
+ * @version 22.12.2020
  */
 public abstract class Piece implements Cloneable
 {
@@ -33,6 +31,7 @@ public abstract class Piece implements Cloneable
      * @param aType Type de la pièce.
      * @param x Position x.
      * @param y Position y.
+     * @param board Board sur lequel la pièce se trouve.
      */
     protected Piece(PlayerColor aColor, PieceType aType, int x, int y, Board board)
     {
@@ -78,7 +77,7 @@ public abstract class Piece implements Cloneable
     }
 
     /**
-     * Initialise la valeur Y d'une pièce.
+     * Initialise la valeur X d'une pièce.
      * @param x Position x à assigner.
      */
     public void setX(int x)
@@ -98,7 +97,7 @@ public abstract class Piece implements Cloneable
     /**
      * Demande à la pièce de fournir une liste de ses mouvement possible.
      * Elle ne tient pas compte d'une éventuelle mise en échec de son roi.
-     * @return Retourne une liste des movements faisable par la pièce "égoistement".
+     * @return Retourne une liste des movements faisables par la pièce "égoistement".
      */
     public LinkedList<Movement> possibleMovements()
     {
@@ -146,6 +145,10 @@ public abstract class Piece implements Cloneable
         return p;
     }
 
+    /**
+     * Pour une pièce donnée, copie son état.
+     * @param other Pièce à copier.
+     */
     public void copyState(Piece other)
     {
         x = other.x;
@@ -153,6 +156,10 @@ public abstract class Piece implements Cloneable
         rules = other.rules;
     }
 
+    /**
+     * Utilise getSimpleName pour retourner le nom de l'objet.
+     * @return Retourne le nom de l'objet.
+     */
     public String toString()
     {
         return getClass().getSimpleName();
