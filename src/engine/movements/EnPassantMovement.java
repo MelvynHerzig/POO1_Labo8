@@ -20,7 +20,7 @@ import engine.pieces.Piece;
  */
 public class EnPassantMovement extends Movement
 {
-   Pawn toKill;
+   private final Pawn toKill;
 
    /**
     * Constructeur.

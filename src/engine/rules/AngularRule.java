@@ -5,58 +5,74 @@ import engine.movements.Movement;
 import engine.pieces.Piece;
 import java.util.LinkedList;
 
+/**
+ * Classe modélisant la règle des mouvements linéaires.
+ *
+ * @author Forestier Quentin, Herzig Melvyn
+ * @version 22.12.2020
+ */
 public class AngularRule extends Rule
 {
-   boolean limitToOne;
+   private boolean limitToOne;
 
-   public AngularRule(Board board, boolean limitToOne)
+   /**
+    * Constructeur
+    * @param board Echiquier sur lequel appliquer la règle.
+    * @param limitToOne La règle doit elle être limité à une case dans les
+    *                   différentes directions.
+    */
+   public AngularRule(Board board, Piece piece, boolean limitToOne)
    {
-      super(board);
+      super(board, piece);
 
       this.limitToOne = limitToOne;
    }
 
-   public LinkedList<Movement> possibleMovements(Piece p)
+   /**
+    * Calcule les mouvements possibles pour la pièce p.
+    * @return Retourne la liste des mouvements possibles.
+    */
+   public LinkedList<Movement> possibleMovements()
    {
       LinkedList<Movement> movements = new LinkedList<Movement>();
 
 
-      int x = p.getX();
-      int y = p.getY();
+      int x = piece.getX();
+      int y = piece.getY();
       int offset = 1;
 
       //En haut-droite
-      while(board.isValidPosition(  x+offset, y+offset) && !board.isAllySpot(p.getColor(),  x+offset, y+offset))
+      while(board.isValidPosition(  x+offset, y+offset) && !board.isAllySpot(piece.getColor(),  x+offset, y+offset))
       {
-         movements.add(new Movement(board, p, x+offset, y+offset));
-         if(limitToOne || !board.isFreeSpot(x+offset, y+offset) && !board.isAllySpot(p.getColor(),x+offset, y+offset)) break;
+         movements.add(new Movement(board, piece, x+offset, y+offset));
+         if(limitToOne || !board.isFreeSpot(x+offset, y+offset) && !board.isAllySpot(piece.getColor(),x+offset, y+offset)) break;
          ++offset;
       }
 
       //En haut-gauche
       offset = 1;
-      while(board.isValidPosition(  x-offset, y+offset) && !board.isAllySpot(p.getColor(),  x-offset, y+offset))
+      while(board.isValidPosition(  x-offset, y+offset) && !board.isAllySpot(piece.getColor(),  x-offset, y+offset))
       {
-         movements.add(new Movement(board, p, x-offset, y+offset));
-         if(limitToOne || !board.isFreeSpot(x-offset, y+offset) && !board.isAllySpot(p.getColor(),x-offset, y+offset)) break;
+         movements.add(new Movement(board, piece, x-offset, y+offset));
+         if(limitToOne || !board.isFreeSpot(x-offset, y+offset) && !board.isAllySpot(piece.getColor(),x-offset, y+offset)) break;
          ++offset;
       }
 
       //En bas-droite
       offset = 1;
-      while(board.isValidPosition(  x+offset, y-offset) && !board.isAllySpot(p.getColor(),  x+offset, y-offset))
+      while(board.isValidPosition(  x+offset, y-offset) && !board.isAllySpot(piece.getColor(),  x+offset, y-offset))
       {
-         movements.add(new Movement(board, p, x+offset, y-offset));
-         if(limitToOne || !board.isFreeSpot(x+offset, y-offset) && !board.isAllySpot(p.getColor(),x+offset, y-offset)) break;
+         movements.add(new Movement(board, piece, x+offset, y-offset));
+         if(limitToOne || !board.isFreeSpot(x+offset, y-offset) && !board.isAllySpot(piece.getColor(),x+offset, y-offset)) break;
          ++offset;
       }
 
       //En bas-gauche
       offset = 1;
-      while(board.isValidPosition(  x-offset, y-offset) && !board.isAllySpot(p.getColor(),  x-offset, y-offset))
+      while(board.isValidPosition(  x-offset, y-offset) && !board.isAllySpot(piece.getColor(),  x-offset, y-offset))
       {
-         movements.add(new Movement(board, p, x-offset, y-offset));
-         if(limitToOne || !board.isFreeSpot(x-offset, y-offset) && !board.isAllySpot(p.getColor(),x-offset, y-offset)) break;
+         movements.add(new Movement(board, piece, x-offset, y-offset));
+         if(limitToOne || !board.isFreeSpot(x-offset, y-offset) && !board.isAllySpot(piece.getColor(),x-offset, y-offset)) break;
          ++offset;
       }
 

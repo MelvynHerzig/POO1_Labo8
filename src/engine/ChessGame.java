@@ -20,8 +20,8 @@ public class ChessGame implements chess.ChessController
 
    private PlayerColor playerTurn;
 
-   PlayerColor checkedPlayer;
-   boolean canPlayerMove;
+   private PlayerColor checkedPlayer;
+   private boolean canPlayerMove;
 
    /**
     * Démarre la vue et initialise le modèle de l'échiquier.

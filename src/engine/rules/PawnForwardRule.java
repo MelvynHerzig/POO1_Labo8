@@ -10,30 +10,30 @@ import java.util.LinkedList;
 
 public class PawnForwardRule extends Rule
 {
-   public PawnForwardRule(Board board)
+   public PawnForwardRule(Board board, Piece piece)
    {
-      super(board);
+      super(board, piece);
    }
 
-   public LinkedList<Movement> possibleMovements(Piece p)
+   public LinkedList<Movement> possibleMovements()
    {
       LinkedList<Movement> movements = new LinkedList<Movement>();
 
-      int x = p.getX();
-      int y = p.getY();
+      int x = piece.getX();
+      int y = piece.getY();
 
-      if(!(p instanceof Pawn)) return movements;
-      int directionFactor = ((Pawn)p).getDirectionFactor();
+      if(!(piece instanceof Pawn)) return movements;
+      int directionFactor = ((Pawn)piece).getDirectionFactor();
 
       // Vérification avancer d'une case
       if(board.isValidPosition(x, y + 1 * directionFactor) && board.isFreeSpot(x, y + 1 * directionFactor))
       {
-         movements.add(new Movement(board, p, x, y + 1 * directionFactor));
+         movements.add(new Movement(board, piece, x, y + 1 * directionFactor));
 
          // Vérification avancer de 2 cases
-         if( !((PieceSpecialFirstMove) p).hasMoved() && board.isValidPosition(x, y + 2 * directionFactor) && board.isFreeSpot(x, y + 2 * directionFactor))
+         if( !((PieceSpecialFirstMove) piece).hasMoved() && board.isValidPosition(x, y + 2 * directionFactor) && board.isFreeSpot(x, y + 2 * directionFactor))
          {
-            movements.add(new Movement(board, p, x, y + 2 * directionFactor));
+            movements.add(new Movement(board, piece, x, y + 2 * directionFactor));
          }
       }
 

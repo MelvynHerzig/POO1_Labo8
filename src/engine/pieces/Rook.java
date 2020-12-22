@@ -5,6 +5,9 @@ import chess.PieceType;
 import chess.PlayerColor;
 import engine.rules.LinearRule;
 import engine.Board;
+import engine.rules.Rule;
+
+import java.util.LinkedList;
 
 /**
  * Classe modélisant une tour.
@@ -22,7 +25,9 @@ public class Rook extends PieceSpecialFirstMove implements ChessView.UserChoice
      */
     public Rook(PlayerColor color, int x, int y, Board board)
     {
-        super(color, PieceType.ROOK, x, y, board, new LinearRule(board, false));
+        super(color, PieceType.ROOK, x, y, board);
+        rules = new LinkedList<Rule>(){};
+        rules.add(new LinearRule(board, this, false));
     }
 
    @Override

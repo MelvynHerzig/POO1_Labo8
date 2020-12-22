@@ -34,7 +34,7 @@ public abstract class Piece implements Cloneable
      * @param x Position x.
      * @param y Position y.
      */
-    protected Piece(PlayerColor aColor, PieceType aType, int x, int y, Board board, Rule ... rules)
+    protected Piece(PlayerColor aColor, PieceType aType, int x, int y, Board board)
     {
         this.color = aColor;
         this.type = aType;
@@ -43,8 +43,6 @@ public abstract class Piece implements Cloneable
         this.y = y;
 
         this.board = board;
-
-        this.rules = new LinkedList<Rule>(Arrays.asList(rules));
     }
 
     /**
@@ -108,7 +106,7 @@ public abstract class Piece implements Cloneable
 
         for(Rule r : rules)
         {
-            movements.addAll(r.possibleMovements(this));
+            movements.addAll(r.possibleMovements());
         }
 
         return movements;
@@ -130,17 +128,6 @@ public abstract class Piece implements Cloneable
         }
 
         return null;
-    }
-    /**
-     * Vérifie si deux pièces sont égales.
-     * @param p Pièce à comparer.
-     * @return Vrai en cas d'égalité sinon faux.
-     */
-    public boolean equal(Piece p)
-    {
-        if(p == null) return false;
-
-        return p.x == x && p.y == y && p.type == type && p.color == color;
     }
 
     /**

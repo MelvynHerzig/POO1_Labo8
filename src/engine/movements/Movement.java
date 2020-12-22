@@ -24,7 +24,7 @@ import engine.pieces.PieceSpecialFirstMove;
  */
 public class Movement
 {
-    Board board;
+    protected Board board;
 
     private final Piece toMove;
     private final Piece toMoveCopy;
@@ -36,7 +36,7 @@ public class Movement
     private final int toX;
     private final int toY;
 
-    boolean hasBeenApplied;
+    protected boolean hasBeenApplied;
 
     /**
      * Constructeur.

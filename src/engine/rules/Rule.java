@@ -7,12 +7,14 @@ import java.util.LinkedList;
 
 public abstract class Rule
 {
-   Board board;
+   protected Board board;
+   protected Piece piece;
 
-   public Rule(Board board)
+   public Rule(Board board, Piece piece)
    {
       this.board = board;
+      this.piece = piece;
    }
 
-   public abstract LinkedList<Movement> possibleMovements(Piece p);
+   public abstract LinkedList<Movement> possibleMovements();
 }

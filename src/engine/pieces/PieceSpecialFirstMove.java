@@ -23,9 +23,9 @@ public abstract class PieceSpecialFirstMove extends Piece implements Cloneable
      * @param x Position x.
      * @param y Position y.
      */
-    protected PieceSpecialFirstMove(PlayerColor color, PieceType type, int x, int y, Board board, Rule ... rules)
+    protected PieceSpecialFirstMove(PlayerColor color, PieceType type, int x, int y, Board board)
     {
-        super(color, type, x, y, board, rules);
+        super(color, type, x, y, board);
         hasMoved = false;
     }
 
