@@ -30,9 +30,9 @@ public class ChessGame implements chess.ChessController
    @Override
    public void start(ChessView view)
    {
+      board = new Board();
       this.view = view;
       this.view.startView();
-      board = new Board();
    }
 
    /**

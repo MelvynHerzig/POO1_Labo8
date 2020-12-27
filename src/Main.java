@@ -1,5 +1,6 @@
 import chess.ChessController;
 import chess.ChessView;
+import chess.views.console.ConsoleView;
 import chess.views.gui.GUIView;
 import engine.ChessGame;
 
