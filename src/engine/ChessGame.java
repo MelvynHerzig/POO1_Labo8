@@ -45,6 +45,10 @@ public class ChessGame implements chess.ChessController
       checkedPlayer = null;
       canPlayerMove = true;
       board.reset();
+
+      if(board.getKing(playerTurn) == null || board.getKing(opponent()) == null)
+         throw new RuntimeException("At least, chess needs two kings, one for each player.");
+
       updateView();
    }
 

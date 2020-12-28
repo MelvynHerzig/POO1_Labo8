@@ -21,6 +21,12 @@ public class Board
 
     private Piece lastMovedPiece;
 
+    private King whiteKing;
+    private King blackKing;
+
+    private LinkedList<Piece> whitePieces;
+    private LinkedList<Piece> blackPieces;
+
     /**
      * Constructeur
      */
@@ -76,6 +82,14 @@ public class Board
     {
         if(!isValidPosition(x,y)) return;
 
+        if(p != null)
+        {
+            if(p.getColor() == PlayerColor.BLACK && !blackPieces.contains(p))
+                blackPieces.add(p);
+            else if(p.getColor() == PlayerColor.WHITE && !whitePieces.contains(p))
+                whitePieces.add(p);
+        }
+
         board[y][x] = p;
     }
 
@@ -88,6 +102,15 @@ public class Board
     public void killPiece(int x, int y)
     {
         if(!isValidPosition(x,y)) return;
+
+        if(board[y][x] != null)
+        {
+            if(board[y][x].getColor() == PlayerColor.BLACK)
+                blackPieces.remove(board[y][x]);
+            else
+                whitePieces.remove(board[y][x]);
+        }
+
         board[y][x] = null;
     }
 
@@ -98,16 +121,7 @@ public class Board
      */
     public LinkedList<Piece> getPieces(PlayerColor piecesColor)
     {
-        LinkedList<Piece> pieces = new LinkedList<Piece>();
-        for(int y = 0; y < getSize(); ++y)
-        {
-            for(int x = 0; x < getSize(); ++x)
-            {
-                if(!isFreeSpot(x,y) && isAllySpot(piecesColor,x ,y)) pieces.add(getPiece(x,y));
-            }
-        }
-
-        return pieces;
+        return (piecesColor == PlayerColor.BLACK) ? blackPieces : whitePieces;
     }
 
     /**
@@ -117,17 +131,7 @@ public class Board
      */
     public King getKing(PlayerColor kingColor)
     {
-        for(int y = 0; y < getSize(); ++y)
-        {
-            for(int x = 0; x < getSize(); ++x)
-            {
-                Piece p;
-                if(isAllySpot(kingColor,x,y) && (p = getPiece(x,y)).getType() == PieceType.KING)
-                    return (King) p;
-            }
-        }
-
-        return null;
+       return (kingColor == PlayerColor.BLACK) ? blackKing : whiteKing;
     }
 
     /**
@@ -136,6 +140,8 @@ public class Board
     public void reset()
     {
         board = new Piece[SIZE][SIZE];
+        blackPieces = new LinkedList<Piece>();
+        whitePieces = new LinkedList<Piece>();
 
         // Les noirs en haut
         createBackLine(PlayerColor.BLACK, 7);
@@ -204,7 +210,15 @@ public class Board
     {
         int promotionOnLine = color == PlayerColor.WHITE ? getSize()-1 : 0;
         for (int i = 0; i < SIZE; i++)
+        {
             board[noLine][i] = new Pawn(color, i, noLine, promotionOnLine, this);
+
+
+            if (color == PlayerColor.BLACK)
+                blackPieces.add( board[noLine][i]);
+            else
+                whitePieces.add( board[noLine][i]);
+        }
     }
 
     /**
@@ -220,10 +234,27 @@ public class Board
         board[noLine][2] = new Bishop(color, 2, noLine, this);
         board[noLine][3] = new Queen(color, 3, noLine, this);
         board[noLine][4] = new King(color, 4, noLine, this);
+        if(color == PlayerColor.BLACK)
+        {
+            blackKing = (King)board[noLine][4];
+        }
+        else
+        {
+            whiteKing = (King)board[noLine][4];
+        }
+
 
         board[noLine][5] = new Bishop(color, 5, noLine, this);
         board[noLine][6] = new Knight(color, 6, noLine, this);
         board[noLine][7] = new Rook(color, 7, noLine, this);
+
+        for(int i = 0; i < getSize(); ++i)
+        {
+            if (color == PlayerColor.BLACK)
+                blackPieces.add( board[noLine][i]);
+            else
+                whitePieces.add( board[noLine][i]);
+        }
     }
 
     /**
