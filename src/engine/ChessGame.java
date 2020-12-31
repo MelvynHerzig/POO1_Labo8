@@ -144,8 +144,9 @@ public class ChessGame implements chess.ChessController
 
          int direction = k.getX() < r.getX() ? 1 : -1;
 
+         //Vérification de la case initiale et de transit.
          LinkedList<Piece> pieces = board.getPieces(opponent());
-         for (int i = 0; i <= 2; ++i)
+         for (int i = 0; i < 2; ++i)
          {
             for (Piece p : pieces)
             {
