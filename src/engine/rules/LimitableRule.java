@@ -26,4 +26,15 @@ public abstract class LimitableRule extends Rule
       super(board, piece);
       this.limitToOne = limitToOne;
    }
+
+   /**
+    * Vérifie si le sondage doit s'arrêter.
+    * @param x position x de destination sondée jusque là.
+    * @param y position y de destination sondée jusque là.
+    * @return Retourne vrai si le sondage doit s'arrêter.
+    */
+   protected boolean mustStop(int x, int y)
+   {
+      return limitToOne || (isValidDestination(x,y) && !board.isFreeSpot(x, y));
+   }
 }

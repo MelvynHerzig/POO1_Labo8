@@ -40,37 +40,37 @@ public class AngularRule extends LimitableRule
       int offset = 1;
 
       //En haut-droite
-      while(board.isValidPosition(  x+offset, y+offset) && !board.isAllySpot(piece.getColor(),  x+offset, y+offset))
+      while(isValidDestination(x+offset, y+offset))
       {
          movements.add(new Movement(board, piece, x+offset, y+offset));
-         if(limitToOne || !board.isFreeSpot(x+offset, y+offset) && !board.isAllySpot(piece.getColor(),x+offset, y+offset)) break;
+         if(mustStop(x+offset, y+offset)) break;
          ++offset;
       }
 
       //En haut-gauche
       offset = 1;
-      while(board.isValidPosition(  x-offset, y+offset) && !board.isAllySpot(piece.getColor(),  x-offset, y+offset))
+      while(isValidDestination(x-offset, y+offset))
       {
          movements.add(new Movement(board, piece, x-offset, y+offset));
-         if(limitToOne || !board.isFreeSpot(x-offset, y+offset) && !board.isAllySpot(piece.getColor(),x-offset, y+offset)) break;
+         if(mustStop(x-offset, y+offset)) break;
          ++offset;
       }
 
       //En bas-droite
       offset = 1;
-      while(board.isValidPosition(  x+offset, y-offset) && !board.isAllySpot(piece.getColor(),  x+offset, y-offset))
+      while(isValidDestination(x+offset, y-offset))
       {
          movements.add(new Movement(board, piece, x+offset, y-offset));
-         if(limitToOne || !board.isFreeSpot(x+offset, y-offset) && !board.isAllySpot(piece.getColor(),x+offset, y-offset)) break;
+         if(mustStop(x+offset, y-offset)) break;
          ++offset;
       }
 
       //En bas-gauche
       offset = 1;
-      while(board.isValidPosition(  x-offset, y-offset) && !board.isAllySpot(piece.getColor(),  x-offset, y-offset))
+      while(isValidDestination(x-offset, y-offset))
       {
          movements.add(new Movement(board, piece, x-offset, y-offset));
-         if(limitToOne || !board.isFreeSpot(x-offset, y-offset) && !board.isAllySpot(piece.getColor(),x-offset, y-offset)) break;
+         if(mustStop(x-offset, y-offset)) break;
          ++offset;
       }
 

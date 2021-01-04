@@ -39,37 +39,37 @@ public class LinearRule extends LimitableRule
       int y = piece.getY();
 
       //En haut
-      while(board.isValidPosition(x, y+offset) && !board.isAllySpot(piece.getColor(),x ,y+offset))
+      while(isValidDestination(x ,y+offset))
       {
          movements.add(new Movement(board, piece, x, y+offset));
-         if(limitToOne || !board.isFreeSpot(x, y+offset) && !board.isAllySpot(piece.getColor(),x, y+offset)) break;
+         if(mustStop(x ,y+offset)) break;
          ++offset;
       }
 
       //En bas
       offset = 1;
-      while(board.isValidPosition(x, y-offset) && !board.isAllySpot(piece.getColor(),x ,y-offset))
+      while(isValidDestination(x, y-offset))
       {
          movements.add(new Movement(board, piece, x, y-offset));
-         if(limitToOne || !board.isFreeSpot(x, y-offset) && !board.isAllySpot(piece.getColor(), x, y-offset)) break;
+         if(mustStop(x, y-offset)) break;
          ++offset;
       }
 
       //A droite
       offset = 1;
-      while(board.isValidPosition( x+offset, y) && !board.isAllySpot(piece.getColor(), x+offset, y))
+      while(isValidDestination(x+offset, y))
       {
          movements.add(new Movement(board, piece, x+offset, y));
-         if(limitToOne || !board.isFreeSpot(x+offset, y) && !board.isAllySpot(piece.getColor(), x+offset, y)) break;
+         if(mustStop(x+offset, y)) break;
          ++offset;
       }
 
       //A gauche
       offset = 1;
-      while(board.isValidPosition(  x-offset, y) && !board.isAllySpot(piece.getColor(),  x-offset, y))
+      while(isValidDestination(x-offset, y))
       {
          movements.add(new Movement(board, piece, x-offset, y));
-         if(limitToOne || !board.isFreeSpot(x-offset, y) && !board.isAllySpot(piece.getColor(), x-offset, y)) break;
+         if(mustStop(x-offset, y)) break;
          ++offset;
       }
 

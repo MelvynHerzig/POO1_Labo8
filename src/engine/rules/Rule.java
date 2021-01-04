@@ -33,4 +33,15 @@ public abstract class Rule
     * @return Retourne la liste des déplacements possibles.
     */
    public abstract LinkedList<Movement> possibleMovements();
+
+   /**
+    * Vérifie si la destination est une case vide ou ennemie
+    * @param x position x de destination.
+    * @param y position y de destination.
+    * @return Vrai si la case n'est pas allié sinon faux.
+    */
+   protected boolean isValidDestination(int x, int y)
+   {
+      return board.isValidPosition( x, y) && !board.isAllySpot(piece.getColor(),  x, y);
+   }
 }

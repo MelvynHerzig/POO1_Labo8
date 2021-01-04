@@ -52,11 +52,13 @@ public class Board
         //Si la pièce est nulle, sans effet.
         if(p == null) return;
 
+        killPiece(toX, toY);
+
         board[toY][toX] = p;
         p.setX(toX);
         p.setY(toY);
 
-        killPiece(fromX, fromY);
+        board[fromY][fromX] = null;
     }
 
     /**

@@ -45,45 +45,33 @@ public class CastlingRule extends Rule
       if(!(piece instanceof PieceSpecialFirstMove) || ((PieceSpecialFirstMove) piece).hasMoved())
          return movements;
 
-      // Grand Roques
-      boolean castlingPossible = true;
-      if(board.isValidPosition(x-4, y) && board.isAllySpot(piece.getColor(),x-4, y))
+      // la tour devrait se situer en -4 par rapport au roi ou en +3
+      // soit en premier lieu grand roque et ensuite petit roque
+      for(int rookOffsetX = -4; rookOffsetX <= 3; rookOffsetX += 7)
       {
-         Piece p = board.getPiece(x-4, y);
-         if(p != null && p.getClass() == Rook.class && !((PieceSpecialFirstMove)p).hasMoved())
+         boolean castlingPossible = true;
+         if(board.isValidPosition(x + rookOffsetX, y) && board.isAllySpot(piece.getColor(),x + rookOffsetX, y))
          {
-            for (int offsetX = 1; offsetX < 4; ++offsetX)
+            Piece p = board.getPiece(x + rookOffsetX, y);
+            if(p != null && p.getClass() == Rook.class && !((PieceSpecialFirstMove)p).hasMoved())
             {
-               if (!board.isFreeSpot(x - offsetX, y))
+               for (int offsetX = 1; offsetX <Math.abs(rookOffsetX); ++offsetX)
                {
-                  castlingPossible = false;
-                  break;
+                  if (!board.isFreeSpot(x - offsetX, y))
+                  {
+                     castlingPossible = false;
+                     break;
+                  }
+               }
+               if (castlingPossible)
+               {
+                  int xDestination = (rookOffsetX < 0) ? x - 2 : x + 2;
+                  movements.add(new CastlingMovement(board, piece, xDestination, y, (Rook)board.getPiece(x + rookOffsetX, y)));
                }
             }
-            if (castlingPossible)
-               movements.add(new CastlingMovement(board, piece, x - 2, y, (Rook)board.getPiece(x - 4, y)));
          }
       }
 
-      castlingPossible = true;
-      // Petit Roques
-      if(board.isValidPosition(x+3, y) && board.isAllySpot(piece.getColor(),x+3, y))
-      {
-         Piece p = board.getPiece(x+3, y);
-         if (p != null && p.getClass() == Rook.class && !((PieceSpecialFirstMove)p).hasMoved())
-         {
-            for (int offsetX = 1; offsetX < 3; ++offsetX)
-            {
-               if (!board.isFreeSpot(x + offsetX, y))
-               {
-                  castlingPossible = false;
-                  break;
-               }
-            }
-            if (castlingPossible)
-               movements.add(new CastlingMovement(board, piece, x + 2, y,(Rook)board.getPiece(x + 3, y)));
-         }
-      }
       return  movements;
    }
 }

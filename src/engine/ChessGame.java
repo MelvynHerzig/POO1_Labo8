@@ -82,7 +82,8 @@ public class ChessGame implements chess.ChessController
                checkAndAskPawnPromotion(board.getLastMovedPiece());
 
                playerTurn = opponent();
-               movement.updateView(view);
+               //movement.updateView(view);
+               updateView();
                isValid = true;
             }
             else
