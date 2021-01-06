@@ -1,6 +1,5 @@
 package engine;
 
-import chess.PieceType;
 import chess.PlayerColor;
 import engine.pieces.*;
 
